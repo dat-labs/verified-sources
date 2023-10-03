@@ -5,3 +5,4 @@ class Base:
     """
     Base class for Verified Sources
     """
+    store = None
