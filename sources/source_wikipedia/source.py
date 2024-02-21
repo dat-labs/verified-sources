@@ -1,10 +1,10 @@
 import os
 from typing import Tuple, Any, List, Mapping
-from connectors.sources.base import SourceBase
-from connectors.sources.stream import Stream
-from connectors.sources.source_wikipedia.streams import ContentSearch
-from pydantic_models.connector_specification import ConnectorSpecification
-from auth.core import NoAuth
+from dat_core.connectors.sources.base import SourceBase
+from dat_core.connectors.sources.stream import Stream
+from sources.source_wikipedia.streams import ContentSearch
+from dat_core.pydantic_models.connector_specification import ConnectorSpecification
+from dat_core.auth.core import NoAuth
 
 
 class Wikipedia(SourceBase):

@@ -2,13 +2,13 @@ import requests
 import time
 from lxml import html
 from typing import Any, Dict, Iterable, List, Mapping, Optional
-from connectors.sources.stream import Stream
-from pydantic_models.connector_specification import ConnectorSpecification
-from pydantic_models.dat_document_stream import SyncMode
-from pydantic_models.dat_message import DatMessage, Type, DatDocumentMessage, Data
-from pydantic_models.dat_log_message import DatLogMessage, Level
-from pydantic_models.stream_metadata import StreamMetadata
-from utils import to_snake_case
+from dat_core.connectors.sources.stream import Stream
+from dat_core.pydantic_models.connector_specification import ConnectorSpecification
+from dat_core.pydantic_models.dat_document_stream import SyncMode
+from dat_core.pydantic_models.dat_message import DatMessage, Type, DatDocumentMessage, Data
+from dat_core.pydantic_models.dat_log_message import DatLogMessage, Level
+from dat_core.pydantic_models.stream_metadata import StreamMetadata
+
 class WikipediaStream(Stream):
     """
     Base class for a Wikipedia stream
@@ -125,7 +125,7 @@ class ContentSearch(WikipediaStream):
         raw_html = response['parse']['text']['*']
         document = html.document_fromstring(raw_html)
         text = ''
-        for p in document.xpath('//p')[:1]:
+        for p in document.xpath('//p'):
             text = p.text_content() + '\n'
             text = 'Riju is holding a red book'
             dat_msg = DatMessage(

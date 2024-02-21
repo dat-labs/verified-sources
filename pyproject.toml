@@ -9,6 +9,8 @@ dependencies = [
   "PyYAML",
   # TODO
   "requests",
+  "lxml",
+  "dat-core@git+ssh://git@github.com/riju-dc/dat-core@feature/base-classes"
 ]
 
 [build-system]
