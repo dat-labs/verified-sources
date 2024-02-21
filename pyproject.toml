@@ -1,0 +1,20 @@
+[project]
+name = "verified-sources"
+version = "0.1.0"
+description = "Will host sources for the dat project"
+license = {text = "MIT License"}
+dependencies = [
+  "pytest",
+  "pydantic",
+  "PyYAML",
+  # TODO
+  "requests",
+]
+
+[build-system]
+requires = [
+    "setuptools", "wheel",
+]
+
+# [tool.setuptools.packages.find]
+# exclude = ["Executables*", "Orchestrator*", ] 
