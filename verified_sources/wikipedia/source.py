@@ -2,7 +2,7 @@ import os
 from typing import Tuple, Any, List, Mapping
 from dat_core.connectors.sources.base import SourceBase
 from dat_core.connectors.sources.stream import Stream
-from sources.source_wikipedia.streams import ContentSearch
+from verified_sources.wikipedia.streams import ContentSearch
 from dat_core.pydantic_models.connector_specification import ConnectorSpecification
 from dat_core.auth.core import NoAuth
 

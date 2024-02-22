@@ -127,7 +127,6 @@ class ContentSearch(WikipediaStream):
         text = ''
         for p in document.xpath('//p'):
             text = p.text_content() + '\n'
-            text = 'Riju is holding a red book'
             dat_msg = DatMessage(
                 type=Type.RECORD,
                 record=DatDocumentMessage(
