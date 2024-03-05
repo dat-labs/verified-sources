@@ -11,8 +11,8 @@ class Wikipedia(SourceBase):
     """
     Wikipedia as a source
     """
-    _spec_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'specs.yml')
-    _catalog_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'catalog.yml')
+    _spec_file = 'https://raw.githubusercontent.com/dc-rahul/verified-sources/feature/google-drive-and-wikipedia-forked/verified_sources/wikipedia/specs.yml'
+    _catalog_file = 'https://raw.githubusercontent.com/dc-rahul/verified-sources/feature/google-drive-and-wikipedia-forked/verified_sources/wikipedia/catalog.yml'
 
     def check_connection(self, config: ConnectorSpecification) -> Tuple[bool, Any]:
         """
