@@ -35,7 +35,7 @@ class GoogleDrive(SourceBase):
                     ]
             )
             auth.refresh_token = config.connectionSpecification.get('refresh_token')
-            access_token, expires_in = auth.token_refresh()
+            access_token = auth.get_access_token()
             headers = {
                 'Authorization': f'Bearer {access_token}'
             }

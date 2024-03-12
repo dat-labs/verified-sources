@@ -1,22 +1,29 @@
-[project]
+[tool.poetry]
 name = "verified-sources"
 version = "0.1.0"
-description = "Will host sources for the dat project"
-license = {text = "MIT License"}
-dependencies = [
-  "pytest",
-  "pydantic",
-  "PyYAML",
-  # TODO
-  "requests",
-  "lxml",
-  "dat-core@git+ssh://git@github.com/riju-dc/dat-core@feature/base-classes",
-]
+description = "List of verified sources"
+authors = ["Rahul Kumar <rahul.kumar@decision-tree.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+dat-core = {git = "ssh://git@github.com/riju-dc/dat-core", rev = "feature/base-classes"}
+
+
+[tool.poetry.group.dev.dependencies]
+pydantic = "^2.6.3"
+pyyaml = "^6.0.1"
+requests = "^2.31.0"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.1.1"
+
+
+[tool.poetry.group.wikipedia.dependencies]
+lxml = "^5.1.0"
 
 [build-system]
-requires = [
-    "setuptools", "wheel",
-]
-
-# [tool.setuptools.packages.find]
-# exclude = ["Executables*", "Orchestrator*", ] 
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
