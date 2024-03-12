@@ -1,8 +1,7 @@
 import os
+import requests
 from typing import List, Tuple, Any
 from dat_core.connectors.sources.stream import Stream
-from googleapiclient.discovery import build
-from google.oauth2 import credentials
 from dat_core.connectors.sources.base import SourceBase
 from dat_core.pydantic_models.connector_specification import ConnectorSpecification
 from dat_core.pydantic_models.dat_connection_status import DatConnectionStatus, Status
@@ -36,22 +35,20 @@ class GoogleDrive(SourceBase):
                     ]
             )
             auth.refresh_token = config.connectionSpecification.get('refresh_token')
-            auth.token_refresh()
-            creds_info = {
-                "refresh_token": auth.refresh_token,
-                "client_id": auth._client_id,
-                "client_secret": auth._client_secret
-                }
-            g_creds = credentials.Credentials.from_authorized_user_info(creds_info)
-            service = build("drive", "v3", credentials=g_creds)
-            results = (
-                service.files()
-                .list(pageSize=10, fields="nextPageToken, files(id, name)")
-                .execute()
-            )
-            items = results.get("files", [])
-            conn_status = True
-            message = 'List files successful'
+            access_token, expires_in = auth.token_refresh()
+            headers = {
+                'Authorization': f'Bearer {access_token}'
+            }
+            resp = requests.get('https://www.googleapis.com/drive/v3/files', headers=headers)
+            if resp.status_code == 200:
+                print(resp.json())
+                conn_status = True
+                message = 'List files successful'
+            else:
+                print(resp.text)
+                conn_status = True
+                message = 'List files unsuccessful'
+
         except Exception as exc:
             # TODO: Raise or log proper exception
             conn_status = False
