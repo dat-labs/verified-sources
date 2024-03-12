@@ -5,19 +5,31 @@ properties:
     items:
       - type: object
         properties:
-          name: agents
-          json_schema:
-            type: object
-            properties:
-              roles:
-                type: object
-                properties:
-                  administrator:
-                    type: string
-                  owner:
-                    type: string
-          supported_sync_modes:
+          name: pdf
+          namespace:
+            description: "namespace the data is associated with"
+            type: string
+          dir_uris:
+            type: array
+            items:
+              type: string
+          sync_mode:
             type: string
             enum:
+              - full_refresh
               - incremental
-              - full
+      - type: object
+        properties:
+          name: txt
+          namespace:
+            description: "namespace the data is associated with"
+            type: string
+          dir_uris:
+            type: array
+            items:
+              type: string
+          sync_mode:
+            type: string
+            enum:
+              - full_refresh
+              - incremental

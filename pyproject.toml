@@ -10,7 +10,8 @@ dependencies = [
   # TODO
   "requests",
   "lxml",
-  "dat-core@git+ssh://git@github.com/riju-dc/dat-core@feature/base-classes"
+  "dat-core@git+ssh://git@github.com/riju-dc/dat-core@feature/base-classes",
+  "google-api-python-client",
 ]
 
 [build-system]
