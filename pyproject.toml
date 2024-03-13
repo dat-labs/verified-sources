@@ -20,8 +20,14 @@ requests = "^2.31.0"
 [tool.poetry.group.test.dependencies]
 pytest = "^8.1.1"
 
+
+[tool.poetry.group.wikipedia.dependencies]
+lxml = "^5.1.0"
+
+
 [tool.poetry.extras]
-wikipedia = ["lxml = ^5.1.0"]
+wikipedia = []
+
 
 [build-system]
 requires = ["poetry-core"]
