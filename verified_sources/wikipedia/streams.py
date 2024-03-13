@@ -52,6 +52,7 @@ class WikipediaStream(Stream):
             response = self.send_request(params)
             for record in self.parse_response(response):
                 record.record.data.metadata = self.get_metadata(
+                    specs=config,
                     document_chunk=record.record.data.document_chunk,
                     # document_chunk=None,
                     data_entity='Quantum Computing'
@@ -61,16 +62,6 @@ class WikipediaStream(Stream):
             next_page_token = self.next_page_token(response, current_page_token=next_page_token)
             if not next_page_token:
                 break
-    
-    def get_metadata(self, document_chunk: str, data_entity: str) -> StreamMetadata:
-        metadata = StreamMetadata(
-            dat_source=self.config.name,
-            dat_stream=self.name,
-            dat_document_entity=data_entity,
-            dat_last_modified=int(time.time()),
-            dat_document_chunk=document_chunk
-        )
-        return metadata
 
 class ContentSearch(WikipediaStream):
     """
