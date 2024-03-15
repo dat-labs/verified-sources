@@ -11,17 +11,20 @@ from dat_core.pydantic_models.dat_catalog import DatCatalog, DatDocumentStream
 
 class GoogleDriveStream(Stream):
     
+    __supported_mimetype__ = 'application/txt'
+    __required_scopes__ = [
+                    'https://www.googleapis.com/auth/drive',
+                    'https://www.googleapis.com/auth/drive.file', 
+                    'https://www.googleapis.com/auth/drive.appdata',
+                    ]
+    
     def __init__(self, config: ConnectorSpecification) -> None:
         self._config = config
         self.auth = BaseOauth2Authenticator(
                 client_id=config.connectionSpecification.get('client_id'),
                 client_secret=config.connectionSpecification.get('client_secret'),
                 token_refresh_endpoint='https://oauth2.googleapis.com/token',
-                scopes=[
-                    'https://www.googleapis.com/auth/drive',
-                    'https://www.googleapis.com/auth/drive.file', 
-                    'https://www.googleapis.com/auth/drive.appdata',
-                    ]
+                scopes=self.__required_scopes__
             )
         self.auth.refresh_token = config.connectionSpecification.get('refresh_token')
     
@@ -33,7 +36,7 @@ class GoogleDriveStream(Stream):
         folder_id = self._traverse_folder_path(configured_stream.dir_uris[0])
         params = {
             'fields': 'nextPageToken, files(id, name)',
-            'q': f"mimeType='application/pdf' and '{folder_id}' in parents",
+            'q': f"mimeType='{self.__supported_mimetype__}' and '{folder_id}' in parents",
         }
         print('line:38', params)
         files = self._list_gdrive_objects(params)
@@ -90,10 +93,10 @@ class GoogleDriveStream(Stream):
 
 
 class GDrivePdfStream(GoogleDriveStream):
-    pass
+    __supported_mimetype__ = 'application/pdf'
 
 class GDriveTxtStream(GoogleDriveStream):
-    pass
+    __supported_mimetype__ = 'application/txt'
 
 
 
