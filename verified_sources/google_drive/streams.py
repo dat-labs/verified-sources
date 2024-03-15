@@ -1,6 +1,6 @@
 import requests
 import time
-from typing import Any, Generator, List, Mapping, Optional
+from typing import Any, Generator, List, Mapping, Optional, Dict
 from dat_core.connectors.sources.stream import Stream
 from dat_core.pydantic_models.connector_specification import ConnectorSpecification
 from dat_core.pydantic_models.dat_message import DatMessage, Type, DatDocumentMessage, Data
@@ -30,38 +30,62 @@ class GoogleDriveStream(Stream):
         configured_stream: DatDocumentStream,
         stream_state: Optional[Mapping[str, Any]] = None
     ) -> Generator[DatMessage, Any, Any]:
-        access_token = self.auth.get_access_token()
-        headers = {
-            'Authorization': f'Bearer {access_token}'
-        }
+        folder_id = self._traverse_folder_path(configured_stream.dir_uris[0])
         params = {
             'fields': 'nextPageToken, files(id, name)',
-            'q': f"mimeType='application/vnd.google-apps.folder'",# and name='{configured_stream.dir_uris[0]}'",
+            'q': f"mimeType='application/pdf' and '{folder_id}' in parents",
+        }
+        print('line:38', params)
+        files = self._list_gdrive_objects(params)
+        for file in files:
+            doc_msg = DatDocumentMessage(
+                stream=self.as_pydantic_model(),
+                data=Data(
+                    document_chunk=file['name'],
+                    metadata=self.get_metadata(
+                            specs=self._config,
+                            document_chunk=file['name'],
+                            data_entity=configured_stream.dir_uris[0]
+                            )
+                        ),
+                emitted_at=int(time.time()),
+                namespace=configured_stream.namespace
+                )
+            yield DatMessage(
+                type=Type.RECORD,
+                record=doc_msg
+            )
+    
+    def _list_gdrive_objects(self, params) -> List[Dict]:
+        headers = {
+            'Authorization': f'Bearer {self.auth.get_access_token()}'
         }
         resp = requests.get('https://www.googleapis.com/drive/v3/files', headers=headers, params=params)
         if resp.status_code == 200:
-            files = resp.json().get('files', [])
-            for file in files:
-                doc_msg = DatDocumentMessage(
-                    stream=self.as_pydantic_model(),
-                    data=Data(
-                        document_chunk=file['name'],
-                        metadata=self.get_metadata(
-                                specs=self._config,
-                                document_chunk=file['name'],
-                                data_entity=configured_stream.dir_uris[0]
-                                )
-                            ),
-                    emitted_at=int(time.time()),
-                    namespace='test_1'
-                    )
-                yield DatMessage(
-                    type=Type.RECORD,
-                    record=doc_msg
-                )
+            return resp.json().get('files', [])
         else:
-            print(resp.text) 
+            print(resp.text)
     
+    def _traverse_folder_path(self, folder_path) -> int:
+        folder_id = 'root'
+        if folder_path == '/':
+            return
+        
+        path_list = folder_path.split('/')
+        path_list = [path for path in path_list if path]
+        for ele in path_list:
+            params = {
+                'fields': 'nextPageToken, files(id, name)',
+                'q': f"mimeType='application/vnd.google-apps.folder' and name='{ele}' and '{folder_id}' in parents and trashed=false",
+                'spaces': 'drive'
+            }
+            print('line:82', params)
+            folders = self._list_gdrive_objects(params)
+            if folders:
+                folder_id = folders[0]['id']
+                print('Found folder:', folders[0]['name'])
+        
+        return folder_id
 
 
 

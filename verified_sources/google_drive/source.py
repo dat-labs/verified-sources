@@ -85,7 +85,7 @@ if __name__ == '__main__':
             DatDocumentStream(
                 name='g_drive_pdf_stream',
                 namespace='my-pdf',
-                dir_uris=['/tmp', ],
+                dir_uris=['bak/MySQL/STAGING', ],
                 sync_mode=SyncMode.incremental
             )
         ]
