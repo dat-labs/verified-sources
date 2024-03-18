@@ -1,14 +1,15 @@
 import requests
 import time
+import os
+from contextlib import contextmanager
 from typing import Any, Generator, List, Mapping, Optional, Dict
 from dat_core.connectors.sources.stream import Stream
 from dat_core.pydantic_models.connector_specification import ConnectorSpecification
 from dat_core.pydantic_models.dat_message import DatMessage, Type, DatDocumentMessage, Data
 from dat_core.pydantic_models.dat_log_message import DatLogMessage, Level
-from dat_core.pydantic_models.configured_document_stream import ConfiguredDocumentStream
 from dat_core.auth.oauth2_authenticator import BaseOauth2Authenticator
 from dat_core.pydantic_models.dat_catalog import DatCatalog, DatDocumentStream
-
+from dat_core.doc_splitters.pdf_splitter import PdfSplitter, BaseSplitter
 class GoogleDriveStream(Stream):
     
     __supported_mimetype__ = 'application/txt'
@@ -17,6 +18,7 @@ class GoogleDriveStream(Stream):
                     'https://www.googleapis.com/auth/drive.file', 
                     'https://www.googleapis.com/auth/drive.appdata',
                     ]
+    _doc_splitter = BaseSplitter
     
     def __init__(self, config: ConnectorSpecification) -> None:
         self._config = config
@@ -38,28 +40,29 @@ class GoogleDriveStream(Stream):
             'fields': 'nextPageToken, files(id, name)',
             'q': f"mimeType='{self.__supported_mimetype__}' and '{folder_id}' in parents",
         }
-        print('line:38', params)
-        files = self._list_gdrive_objects(params)
+        files = self.list_gdrive_objects(params)
         for file in files:
-            doc_msg = DatDocumentMessage(
-                stream=self.as_pydantic_model(),
-                data=Data(
-                    document_chunk=file['name'],
-                    metadata=self.get_metadata(
-                            specs=self._config,
-                            document_chunk=file['name'],
-                            data_entity=configured_stream.dir_uris[0]
-                            )
-                        ),
-                emitted_at=int(time.time()),
-                namespace=configured_stream.namespace
-                )
-            yield DatMessage(
-                type=Type.RECORD,
-                record=doc_msg
-            )
+            with self.download_gdrive_file(file_id=file['id']) as temp_file:
+                for doc_chunk in self._doc_splitter(filepath=temp_file, strategy='page').yield_chunks():
+                    doc_msg = DatDocumentMessage(
+                        stream=self.as_pydantic_model(),
+                        data=Data(
+                            document_chunk=doc_chunk,
+                            metadata=self.get_metadata(
+                                    specs=self._config,
+                                    document_chunk=doc_chunk,
+                                    data_entity=f'{configured_stream.dir_uris[0]}/{file["name"]}'
+                                    )
+                                ),
+                        emitted_at=int(time.time()),
+                        namespace=configured_stream.namespace
+                        )
+                    yield DatMessage(
+                        type=Type.RECORD,
+                        record=doc_msg
+                    )
     
-    def _list_gdrive_objects(self, params) -> List[Dict]:
+    def list_gdrive_objects(self, params) -> List[Dict]:
         headers = {
             'Authorization': f'Bearer {self.auth.get_access_token()}'
         }
@@ -82,18 +85,40 @@ class GoogleDriveStream(Stream):
                 'q': f"mimeType='application/vnd.google-apps.folder' and name='{ele}' and '{folder_id}' in parents and trashed=false",
                 'spaces': 'drive'
             }
-            print('line:82', params)
-            folders = self._list_gdrive_objects(params)
+            folders = self.list_gdrive_objects(params)
             if folders:
                 folder_id = folders[0]['id']
                 print('Found folder:', folders[0]['name'])
         
         return folder_id
+    
+    @contextmanager
+    def download_gdrive_file(self, file_id) -> Generator[str, Any, Any]:
+        from tempfile import NamedTemporaryFile
+        headers = {
+            'Authorization': f'Bearer {self.auth.get_access_token()}'
+        }
+        params = {
+            'alt': 'media'
+        }
+        temp_file = None
+        try:
+            resp = requests.get(f'https://www.googleapis.com/drive/v3/files/{file_id}', headers=headers, params=params)
+            if resp.status_code == 200:
+                temp_file = NamedTemporaryFile(mode='wb+', delete=False)
+                temp_file.write(resp.content)
+                yield temp_file.name
+            else:
+                print(resp.text)
+        finally:
+            if temp_file:
+                os.remove(temp_file.name)
 
 
 
 class GDrivePdfStream(GoogleDriveStream):
     __supported_mimetype__ = 'application/pdf'
+    _doc_splitter = PdfSplitter
 
 class GDriveTxtStream(GoogleDriveStream):
     __supported_mimetype__ = 'application/txt'
