@@ -10,31 +10,61 @@ from dat_core.pydantic_models.dat_log_message import DatLogMessage, Level
 from dat_core.auth.oauth2_authenticator import BaseOauth2Authenticator
 from dat_core.pydantic_models.dat_catalog import DatCatalog, DatDocumentStream
 from dat_core.doc_splitters.pdf_splitter import PdfSplitter, BaseSplitter
+
+
 class GoogleDriveStream(Stream):
-    
+    """
+    A stream for reading data from Google Drive.
+
+    Args:
+        config (ConnectorSpecification): The connector configuration.
+
+    Attributes:
+        _config (ConnectorSpecification): The connector configuration.
+        auth (BaseOauth2Authenticator): The OAuth2 authenticator instance.
+    """
+
     __supported_mimetype__ = 'application/txt'
     __required_scopes__ = [
-                    'https://www.googleapis.com/auth/drive',
-                    'https://www.googleapis.com/auth/drive.file', 
-                    'https://www.googleapis.com/auth/drive.appdata',
-                    ]
+        'https://www.googleapis.com/auth/drive',
+        'https://www.googleapis.com/auth/drive.file',
+        'https://www.googleapis.com/auth/drive.appdata',
+    ]
     _doc_splitter = BaseSplitter
-    
+
     def __init__(self, config: ConnectorSpecification) -> None:
+        """
+        Initialize the GoogleDriveStream instance.
+
+        Args:
+            config (ConnectorSpecification): The connector configuration.
+        """
         self._config = config
         self.auth = BaseOauth2Authenticator(
-                client_id=config.connectionSpecification.get('client_id'),
-                client_secret=config.connectionSpecification.get('client_secret'),
-                token_refresh_endpoint='https://oauth2.googleapis.com/token',
-                scopes=self.__required_scopes__
-            )
+            client_id=config.connectionSpecification.get('client_id'),
+            client_secret=config.connectionSpecification.get('client_secret'),
+            token_refresh_endpoint='https://oauth2.googleapis.com/token',
+            scopes=self.__required_scopes__
+        )
         self.auth.refresh_token = config.connectionSpecification.get('refresh_token')
-    
-    def read_records(self,
+
+    def read_records(
+        self,
         catalog: DatCatalog,
         configured_stream: DatDocumentStream,
         stream_state: Optional[Mapping[str, Any]] = None
     ) -> Generator[DatMessage, Any, Any]:
+        """
+        Read records from Google Drive.
+
+        Args:
+            catalog (DatCatalog): The data catalog.
+            configured_stream (DatDocumentStream): The configured document stream.
+            stream_state (Optional[Mapping[str, Any]]): The stream state.
+
+        Yields:
+            Generator[DatMessage, Any, Any]: A generator of DatMessage instances.
+        """
         folder_id = self._traverse_folder_path(configured_stream.dir_uris[0])
         params = {
             'fields': 'nextPageToken, files(id, name)',
@@ -49,20 +79,29 @@ class GoogleDriveStream(Stream):
                         data=Data(
                             document_chunk=doc_chunk,
                             metadata=self.get_metadata(
-                                    specs=self._config,
-                                    document_chunk=doc_chunk,
-                                    data_entity=f'{configured_stream.dir_uris[0]}/{file["name"]}'
-                                    )
-                                ),
+                                specs=self._config,
+                                document_chunk=doc_chunk,
+                                data_entity=f'{configured_stream.dir_uris[0]}/{file["name"]}'
+                            )
+                        ),
                         emitted_at=int(time.time()),
                         namespace=configured_stream.namespace
-                        )
+                    )
                     yield DatMessage(
                         type=Type.RECORD,
                         record=doc_msg
                     )
-    
+
     def list_gdrive_objects(self, params) -> List[Dict]:
+        """
+        List objects in Google Drive.
+
+        Args:
+            params: The request parameters.
+
+        Returns:
+            List[Dict]: A list of objects in Google Drive.
+        """
         headers = {
             'Authorization': f'Bearer {self.auth.get_access_token()}'
         }
@@ -71,12 +110,21 @@ class GoogleDriveStream(Stream):
             return resp.json().get('files', [])
         else:
             print(resp.text)
-    
+
     def _traverse_folder_path(self, folder_path) -> int:
+        """
+        Traverse the folder path in Google Drive.
+
+        Args:
+            folder_path: The folder path.
+
+        Returns:
+            int: The folder ID.
+        """
         folder_id = 'root'
         if folder_path == '/':
             return
-        
+
         path_list = folder_path.split('/')
         path_list = [path for path in path_list if path]
         for ele in path_list:
@@ -89,11 +137,20 @@ class GoogleDriveStream(Stream):
             if folders:
                 folder_id = folders[0]['id']
                 print('Found folder:', folders[0]['name'])
-        
+
         return folder_id
-    
+
     @contextmanager
     def download_gdrive_file(self, file_id) -> Generator[str, Any, Any]:
+        """
+        Download a file from Google Drive.
+
+        Args:
+            file_id: The file ID.
+
+        Yields:
+            Generator[str, Any, Any]: A generator yielding the downloaded file path.
+        """
         from tempfile import NamedTemporaryFile
         headers = {
             'Authorization': f'Bearer {self.auth.get_access_token()}'
@@ -115,13 +172,24 @@ class GoogleDriveStream(Stream):
                 os.remove(temp_file.name)
 
 
-
 class GDrivePdfStream(GoogleDriveStream):
+    """
+    A stream for reading PDF files from Google Drive.
+
+    Attributes:
+        Inherits all attributes from GoogleDriveStream.
+    """
+
     __supported_mimetype__ = 'application/pdf'
     _doc_splitter = PdfSplitter
 
+
 class GDriveTxtStream(GoogleDriveStream):
+    """
+    A stream for reading text files from Google Drive.
+
+    Attributes:
+        Inherits all attributes from GoogleDriveStream.
+    """
+
     __supported_mimetype__ = 'application/txt'
-
-
-
