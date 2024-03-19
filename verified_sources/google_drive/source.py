@@ -83,7 +83,7 @@ if __name__ == '__main__':
                 namespace='my-gdrive-pdf-files',
                 dir_uris=['bak/MySQL/STAGING', ],
                 sync_mode=SyncMode.incremental,
-                cursor_field='data_entity'
+                cursor_field='dat_document_entity'
             )
         ]
     )

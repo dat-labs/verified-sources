@@ -157,6 +157,9 @@ class GoogleDriveStream(Stream):
         finally:
             if temp_file:
                 os.remove(temp_file.name)
+    def _compare_cursor_values(self, old_cursor_value: Any, current_cursor_value: Any) -> bool:
+        # Should be implemented by streams
+        return old_cursor_value != current_cursor_value
 
 
 class GDrivePdfStream(GoogleDriveStream):
