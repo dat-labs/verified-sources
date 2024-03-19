@@ -73,24 +73,13 @@ class GoogleDriveStream(Stream):
         files = self.list_gdrive_objects(params)
         for file in files:
             with self.download_gdrive_file(file_id=file['id']) as temp_file:
+                data_entity=f'{configured_stream.dir_uris[0]}/{file["name"]}'
                 for doc_chunk in self._doc_splitter(filepath=temp_file, strategy='page').yield_chunks():
-                    doc_msg = DatDocumentMessage(
-                        stream=self.as_pydantic_model(),
-                        data=Data(
-                            document_chunk=doc_chunk,
-                            metadata=self.get_metadata(
-                                specs=self._config,
-                                document_chunk=doc_chunk,
-                                data_entity=f'{configured_stream.dir_uris[0]}/{file["name"]}'
-                            )
-                        ),
-                        emitted_at=int(time.time()),
-                        namespace=configured_stream.namespace
-                    )
-                    yield DatMessage(
-                        type=Type.RECORD,
-                        record=doc_msg
-                    )
+                    yield self.as_record_message(
+                        doc_chunk=doc_chunk,
+                        data_entity=data_entity,
+                        configured_stream=configured_stream
+                        )
 
     def list_gdrive_objects(self, params) -> List[Dict]:
         """
@@ -102,12 +91,12 @@ class GoogleDriveStream(Stream):
         Returns:
             List[Dict]: A list of objects in Google Drive.
         """
-        headers = {
-            'Authorization': f'Bearer {self.auth.get_access_token()}'
-        }
+        headers = self.auth.get_auth_header()
         resp = requests.get('https://www.googleapis.com/drive/v3/files', headers=headers, params=params)
         if resp.status_code == 200:
-            return resp.json().get('files', [])
+            files = resp.json().get('files', [])
+            files = sorted(files, key=lambda file: file['name'])
+            return files
         else:
             print(resp.text)
 
@@ -152,9 +141,7 @@ class GoogleDriveStream(Stream):
             Generator[str, Any, Any]: A generator yielding the downloaded file path.
         """
         from tempfile import NamedTemporaryFile
-        headers = {
-            'Authorization': f'Bearer {self.auth.get_access_token()}'
-        }
+        headers = self.auth.get_auth_header()
         params = {
             'alt': 'media'
         }

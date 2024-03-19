@@ -36,14 +36,10 @@ class GoogleDrive(SourceBase):
                     ]
             )
             auth.refresh_token = config.connectionSpecification.get('refresh_token')
-            access_token = auth.get_access_token()
-            headers = {
-                'Authorization': f'Bearer {access_token}'
-            }
             params = {
                 'fields': 'nextPageToken, files(id, name)'
             }
-            resp = requests.get('https://www.googleapis.com/drive/v3/files', headers=headers, params=params)
+            resp = requests.get('https://www.googleapis.com/drive/v3/files', headers=auth.get_auth_headers(), params=params)
             if resp.status_code == 200:
                 print(resp.json())
                 conn_status = True
@@ -84,9 +80,10 @@ if __name__ == '__main__':
         document_streams=[
             DatDocumentStream(
                 name='g_drive_pdf_stream',
-                namespace='my-pdf',
+                namespace='my-gdrive-pdf-files',
                 dir_uris=['bak/MySQL/STAGING', ],
-                sync_mode=SyncMode.incremental
+                sync_mode=SyncMode.incremental,
+                cursor_field='data_entity'
             )
         ]
     )
