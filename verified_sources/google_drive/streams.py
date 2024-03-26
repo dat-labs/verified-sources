@@ -52,7 +52,7 @@ class GoogleDriveStream(Stream):
         self,
         catalog: DatCatalog,
         configured_stream: DatDocumentStream,
-        stream_state: Optional[Mapping[str, Any]] = None
+        cursor_value: Any = None
     ) -> Generator[DatMessage, Any, Any]:
         """
         Read records from Google Drive.
@@ -71,15 +71,32 @@ class GoogleDriveStream(Stream):
             'q': f"mimeType='{self.__supported_mimetype__}' and '{folder_id}' in parents",
         }
         files = self.list_gdrive_objects(params)
+        files = self._slice_based_on_attr(files, _attr='name', _value=cursor_value)
         for file in files:
             with self.download_gdrive_file(file_id=file['id']) as temp_file:
                 data_entity=f'{configured_stream.dir_uris[0]}/{file["name"]}'
-                for doc_chunk in self._doc_splitter(filepath=temp_file, strategy='page').yield_chunks():
+                for doc_chunk in self._doc_splitter(
+                    filepath=temp_file, strategy='page').yield_chunks():
                     yield self.as_record_message(
                         doc_chunk=doc_chunk,
                         data_entity=data_entity,
                         configured_stream=configured_stream
                         )
+    
+    def _slice_based_on_attr(self, _list: List, _attr: str, _value: Any) -> List:
+        """
+        Given a general list of dicts, slice based on a specific key:value pair
+        The list must be in a certain order
+        """
+        _index = 0
+        _slice_from = 0
+        for item in _list:
+            if item.get(_attr) == _value:
+                _slice_from = _index
+                break
+            _index += 1
+        
+        return _list[_slice_from:]
 
     def list_gdrive_objects(self, params) -> List[Dict]:
         """
@@ -157,6 +174,7 @@ class GoogleDriveStream(Stream):
         finally:
             if temp_file:
                 os.remove(temp_file.name)
+    
     def _compare_cursor_values(self, old_cursor_value: Any, current_cursor_value: Any) -> bool:
         # Should be implemented by streams
         return old_cursor_value != current_cursor_value
