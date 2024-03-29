@@ -39,6 +39,7 @@ class GoogleDrive(SourceBase):
             params = {
                 'fields': 'nextPageToken, files(id, name)'
             }
+            # print(auth.get_auth_header())
             resp = requests.get('https://www.googleapis.com/drive/v3/files', headers=auth.get_auth_header(), params=params)
             if resp.status_code == 200:
                 print(resp.json())
@@ -82,18 +83,30 @@ if __name__ == '__main__':
     pdf_stream = DatDocumentStream(
                 name='pdf',
                 namespace='my-gdrive-pdf-files',
-                dir_uris=['bak/MySQL/STAGING', ],
+                dir_uris=['bak/MySQL/STAGING/for-dat-gdrive-test', ],
                 sync_mode=SyncMode.incremental,
                 # cursor_field='updated_at',
                 supported_sync_modes=[SyncMode.full_refresh, SyncMode.incremental]
             )
-    stream_state = state_manager.get_stream_state(pdf_stream)
+    txt_stream = DatDocumentStream(
+                name='txt',
+                namespace='my-gdrive-txt-files',
+                dir_uris=['bak/MySQL/STAGING/for-dat-gdrive-test', ],
+                sync_mode=SyncMode.incremental,
+                # cursor_field='updated_at',
+                supported_sync_modes=[SyncMode.full_refresh, SyncMode.incremental]
+            )
+    combined_state = {
+        pdf_stream.namespace: state_manager.get_stream_state(pdf_stream),
+        txt_stream.namespace: state_manager.get_stream_state(txt_stream),
+    }
     configured_catalog = DatCatalog(
         document_streams=[
-            pdf_stream
+            txt_stream,
+            pdf_stream,
         ]
     )
-    for msg in gdrive.read(config=config, catalog=configured_catalog, state={ pdf_stream.namespace: stream_state }):
+    for msg in gdrive.read(config=config, catalog=configured_catalog, state=combined_state):
         if msg.type == Type.STATE:
             state_manager.save_stream_state(msg.state.stream, msg.state.stream_state)
         print(msg.model_dump_json())

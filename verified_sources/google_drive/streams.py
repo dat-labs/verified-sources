@@ -9,8 +9,7 @@ from dat_core.pydantic_models.dat_message import DatMessage, Type, DatDocumentMe
 from dat_core.pydantic_models.dat_log_message import DatLogMessage, Level
 from dat_core.auth.oauth2_authenticator import BaseOauth2Authenticator
 from dat_core.pydantic_models.dat_catalog import DatCatalog, DatDocumentStream
-from dat_core.doc_splitters.pdf_splitter import PdfSplitter, BaseSplitter
-
+from dat_core.doc_splitters import PdfSplitter, BaseSplitter, TxtSplitter
 
 class GoogleDriveStream(Stream):
     """
@@ -24,7 +23,7 @@ class GoogleDriveStream(Stream):
         auth (BaseOauth2Authenticator): The OAuth2 authenticator instance.
     """
 
-    __supported_mimetype__ = 'application/txt'
+    __supported_mimetypes__ = ('text/plain', )
     __required_scopes__ = [
         'https://www.googleapis.com/auth/drive',
         'https://www.googleapis.com/auth/drive.file',
@@ -67,9 +66,10 @@ class GoogleDriveStream(Stream):
             Generator[DatMessage, Any, Any]: A generator of DatMessage instances.
         """
         folder_id = self._traverse_folder_path(configured_stream.dir_uris[0])
+        mimetype_q = ' or '.join([f"mimeType='{_mt}'" for _mt in self.__supported_mimetypes__])
         params = {
             'fields': 'nextPageToken, files(id, name, createdTime, modifiedTime)',
-            'q': f"mimeType='{self.__supported_mimetype__}' and '{folder_id}' in parents",
+            'q': f"{mimetype_q} and '{folder_id}' in parents",
         }
         files = self.list_gdrive_objects(params)
         if cursor_value:
@@ -117,6 +117,7 @@ class GoogleDriveStream(Stream):
         resp = requests.get('https://www.googleapis.com/drive/v3/files', headers=headers, params=params)
         if resp.status_code == 200:
             files = resp.json().get('files', [])
+            print(files)
             for file in files:
                 file['modifiedTime'] = int(datetime.datetime.fromisoformat(file['modifiedTime']).timestamp())
                 file['createdTime'] = int(datetime.datetime.fromisoformat(file['createdTime']).timestamp())
@@ -197,7 +198,7 @@ class GDrivePdfStream(GoogleDriveStream):
         Inherits all attributes from GoogleDriveStream.
     """
     _name = 'pdf'
-    __supported_mimetype__ = 'application/pdf'
+    __supported_mimetypes__ = ('application/pdf',)
     _doc_splitter = PdfSplitter
 
 
@@ -209,5 +210,5 @@ class GDriveTxtStream(GoogleDriveStream):
         Inherits all attributes from GoogleDriveStream.
     """
     _name = 'txt'
-    __supported_mimetype__ = 'application/txt'
-    _doc_splitter = BaseSplitter
+    __supported_mimetypes__ = ('application/txt', 'text/plain', 'text/x-log', 'text/x-sql')
+    _doc_splitter = TxtSplitter
