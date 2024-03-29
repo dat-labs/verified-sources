@@ -39,7 +39,7 @@ class GoogleDrive(SourceBase):
             params = {
                 'fields': 'nextPageToken, files(id, name)'
             }
-            resp = requests.get('https://www.googleapis.com/drive/v3/files', headers=auth.get_auth_headers(), params=params)
+            resp = requests.get('https://www.googleapis.com/drive/v3/files', headers=auth.get_auth_header(), params=params)
             if resp.status_code == 200:
                 print(resp.json())
                 conn_status = True
@@ -68,24 +68,32 @@ if __name__ == '__main__':
     import os
     from dat_core.pydantic_models.dat_catalog import DatCatalog, DatDocumentStream
     from dat_core.pydantic_models.dat_document_stream import SyncMode
+    from dat_core.connectors.state_managers import LocalStateManager
+    from dat_core.pydantic_models import Type
+    state_manager = LocalStateManager()
     gdrive = GoogleDrive()
     conn_details = {
         'client_id': os.environ.get('GOOGLE_DRIVE_CLIENT_ID'),
         'client_secret': os.environ.get('GOOGLE_DRIVE_CLIENT_SECRET'),
         'refresh_token': os.environ.get('GOOGLE_DRIVE_REFRESH_TOKEN'),
     }
-    config = ConnectorSpecification(name='GoogleDrive', connectionSpecification=conn_details)
+    config = ConnectorSpecification(name='GoogleDrive', connectionSpecification=conn_details, module_name='google_drive')
     # print(gdrive.check(config=config))
-    configured_catalog = DatCatalog(
-        document_streams=[
-            DatDocumentStream(
-                name='g_drive_pdf_stream',
+    pdf_stream = DatDocumentStream(
+                name='pdf',
                 namespace='my-gdrive-pdf-files',
                 dir_uris=['bak/MySQL/STAGING', ],
                 sync_mode=SyncMode.incremental,
-                cursor_field='dat_document_entity'
+                # cursor_field='updated_at',
+                supported_sync_modes=[SyncMode.full_refresh, SyncMode.incremental]
             )
+    stream_state = state_manager.get_stream_state(pdf_stream)
+    configured_catalog = DatCatalog(
+        document_streams=[
+            pdf_stream
         ]
     )
-    for msg in gdrive.read(config=config, catalog=configured_catalog):
-        print(msg)
+    for msg in gdrive.read(config=config, catalog=configured_catalog, state={ pdf_stream.namespace: stream_state }):
+        if msg.type == Type.STATE:
+            state_manager.save_stream_state(msg.state.stream, msg.state.stream_state)
+        print(msg.model_dump_json())

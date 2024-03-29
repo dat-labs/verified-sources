@@ -1,5 +1,5 @@
 import requests
-import time
+import datetime
 import os
 from contextlib import contextmanager
 from typing import Any, Generator, List, Mapping, Optional, Dict
@@ -31,6 +31,7 @@ class GoogleDriveStream(Stream):
         'https://www.googleapis.com/auth/drive.appdata',
     ]
     _doc_splitter = BaseSplitter
+    _default_cursor = 'dat_last_modified'
 
     def __init__(self, config: ConnectorSpecification) -> None:
         """
@@ -67,20 +68,24 @@ class GoogleDriveStream(Stream):
         """
         folder_id = self._traverse_folder_path(configured_stream.dir_uris[0])
         params = {
-            'fields': 'nextPageToken, files(id, name)',
+            'fields': 'nextPageToken, files(id, name, createdTime, modifiedTime)',
             'q': f"mimeType='{self.__supported_mimetype__}' and '{folder_id}' in parents",
         }
         files = self.list_gdrive_objects(params)
-        files = self._slice_based_on_attr(files, _attr='name', _value=cursor_value)
+        if cursor_value:
+            files = self._slice_based_on_attr(files, _attr='modifiedTime', _value=cursor_value)
         for file in files:
             with self.download_gdrive_file(file_id=file['id']) as temp_file:
                 data_entity=f'{configured_stream.dir_uris[0]}/{file["name"]}'
+                extra_metadata = {'updated_at': file['modifiedTime'], 'created_at': file['createdTime']}
                 for doc_chunk in self._doc_splitter(
                     filepath=temp_file, strategy='page').yield_chunks():
                     yield self.as_record_message(
+                        configured_stream=configured_stream,
                         doc_chunk=doc_chunk,
                         data_entity=data_entity,
-                        configured_stream=configured_stream
+                        dat_last_modified=file['modifiedTime'],
+                        extra_metadata=extra_metadata
                         )
     
     def _slice_based_on_attr(self, _list: List, _attr: str, _value: Any) -> List:
@@ -112,7 +117,11 @@ class GoogleDriveStream(Stream):
         resp = requests.get('https://www.googleapis.com/drive/v3/files', headers=headers, params=params)
         if resp.status_code == 200:
             files = resp.json().get('files', [])
-            files = sorted(files, key=lambda file: file['name'])
+            for file in files:
+                file['modifiedTime'] = int(datetime.datetime.fromisoformat(file['modifiedTime']).timestamp())
+                file['createdTime'] = int(datetime.datetime.fromisoformat(file['createdTime']).timestamp())
+
+            files = sorted(files, key=lambda file: file['modifiedTime'])
             return files
         else:
             print(resp.text)
@@ -135,7 +144,7 @@ class GoogleDriveStream(Stream):
         path_list = [path for path in path_list if path]
         for ele in path_list:
             params = {
-                'fields': 'nextPageToken, files(id, name)',
+                'fields': 'nextPageToken, files(id, name, createdTime, modifiedTime)',
                 'q': f"mimeType='application/vnd.google-apps.folder' and name='{ele}' and '{folder_id}' in parents and trashed=false",
                 'spaces': 'drive'
             }
@@ -187,7 +196,7 @@ class GDrivePdfStream(GoogleDriveStream):
     Attributes:
         Inherits all attributes from GoogleDriveStream.
     """
-
+    _name = 'pdf'
     __supported_mimetype__ = 'application/pdf'
     _doc_splitter = PdfSplitter
 
@@ -199,5 +208,6 @@ class GDriveTxtStream(GoogleDriveStream):
     Attributes:
         Inherits all attributes from GoogleDriveStream.
     """
-
+    _name = 'txt'
     __supported_mimetype__ = 'application/txt'
+    _doc_splitter = BaseSplitter
