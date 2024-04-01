@@ -3,10 +3,8 @@ import requests
 from typing import List, Tuple, Any, Mapping
 from dat_core.connectors.sources.stream import Stream
 from dat_core.connectors.sources.base import SourceBase
-from dat_core.pydantic_models.connector_specification import ConnectorSpecification
-from dat_core.pydantic_models.dat_connection_status import DatConnectionStatus, Status
 from dat_core.auth.oauth2_authenticator import BaseOauth2Authenticator
-from dat_core.pydantic_models.dat_catalog import DatCatalog
+from dat_core.pydantic_models import DatCatalog, ConnectorSpecification, DatConnectionStatus
 from verified_sources.google_drive.streams import GDrivePdfStream, GDriveTxtStream
 class GoogleDrive(SourceBase):
     """
@@ -67,10 +65,8 @@ class GoogleDrive(SourceBase):
         
 if __name__ == '__main__':
     import os
-    from dat_core.pydantic_models.dat_catalog import DatCatalog, DatDocumentStream
-    from dat_core.pydantic_models.dat_document_stream import ReadSyncMode
     from dat_core.connectors.state_managers import LocalStateManager
-    from dat_core.pydantic_models import Type
+    from dat_core.pydantic_models import Type, DatCatalog, DatDocumentStream, ReadSyncMode, WriteSyncMode
     state_manager = LocalStateManager()
     gdrive = GoogleDrive()
     conn_details = {
@@ -85,6 +81,7 @@ if __name__ == '__main__':
                 namespace='my-gdrive-pdf-files',
                 dir_uris=['bak/MySQL/STAGING/for-dat-gdrive-test', ],
                 read_sync_mode=ReadSyncMode.incremental,
+                write_sync_mode=WriteSyncMode.append,
                 # cursor_field='updated_at',
             )
     txt_stream = DatDocumentStream(
@@ -92,6 +89,7 @@ if __name__ == '__main__':
                 namespace='my-gdrive-txt-files',
                 dir_uris=['bak/MySQL/STAGING/for-dat-gdrive-test', ],
                 read_sync_mode=ReadSyncMode.incremental,
+                write_sync_mode=WriteSyncMode.append
                 # cursor_field='updated_at',
             )
     combined_state = {
