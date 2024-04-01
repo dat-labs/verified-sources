@@ -1,11 +1,19 @@
 type: object
+allOf:
+- "$ref": "/home/rahul/Work/dat-core/dat_core/specs/DatCatalog.yml"
 properties:
   streams:
     type: array
     items:
       - type: object
+        allOf:
+        - "$ref": "/home/rahul/Work/dat-core/dat_core/specs/DatDocumentStream.yml"
+        required:
+          - dir_uris
         properties:
-          name: pdf
+          name:
+            type: string
+            default: pdf
           namespace:
             description: "namespace the data is associated with"
             type: string
@@ -13,14 +21,16 @@ properties:
             type: array
             items:
               type: string
-          read_sync_mode:
-            type: string
-            enum:
-              - full_refresh
-              - incremental
+          
       - type: object
+        allOf:
+        - "$ref": "/home/rahul/Work/dat-core/dat_core/specs/DatDocumentStream.yml"
+        required:
+          - dir_uris
         properties:
-          name: txt
+          name:
+            type: string
+            default: txt
           namespace:
             description: "namespace the data is associated with"
             type: string
@@ -28,8 +38,3 @@ properties:
             type: array
             items:
               type: string
-          read_sync_mode:
-            type: string
-            enum:
-              - full_refresh
-              - incremental

@@ -67,6 +67,7 @@ if __name__ == '__main__':
     import os
     from dat_core.connectors.state_managers import LocalStateManager
     from dat_core.pydantic_models import Type, DatCatalog, DatDocumentStream, ReadSyncMode, WriteSyncMode
+    from verified_sources.google_drive.catalog import GoogleDriveCatalog, PdfStream, TxtStream
     state_manager = LocalStateManager()
     gdrive = GoogleDrive()
     conn_details = {
@@ -76,7 +77,7 @@ if __name__ == '__main__':
     }
     config = ConnectorSpecification(name='GoogleDrive', connection_specification=conn_details, module_name='google_drive')
     # print(gdrive.check(config=config))
-    pdf_stream = DatDocumentStream(
+    pdf_stream = PdfStream(
                 name='pdf',
                 namespace='my-gdrive-pdf-files',
                 dir_uris=['bak/MySQL/STAGING/for-dat-gdrive-test', ],
@@ -84,7 +85,7 @@ if __name__ == '__main__':
                 write_sync_mode=WriteSyncMode.append,
                 # cursor_field='updated_at',
             )
-    txt_stream = DatDocumentStream(
+    txt_stream = TxtStream(
                 name='txt',
                 namespace='my-gdrive-txt-files',
                 dir_uris=['bak/MySQL/STAGING/for-dat-gdrive-test', ],
@@ -96,7 +97,7 @@ if __name__ == '__main__':
         pdf_stream.namespace: state_manager.get_stream_state(pdf_stream),
         txt_stream.namespace: state_manager.get_stream_state(txt_stream),
     }
-    configured_catalog = DatCatalog(
+    configured_catalog = GoogleDriveCatalog(
         document_streams=[
             txt_stream,
             pdf_stream,
