@@ -4,7 +4,7 @@ from lxml import html
 from typing import Any, Dict, Iterable, List, Mapping, Optional
 from dat_core.connectors.sources.stream import Stream
 from dat_core.pydantic_models.connector_specification import ConnectorSpecification
-from dat_core.pydantic_models.dat_document_stream import SyncMode
+from dat_core.pydantic_models.dat_document_stream import ReadSyncMode
 from dat_core.pydantic_models.dat_message import DatMessage, Type, DatDocumentMessage, Data
 from dat_core.pydantic_models.dat_log_message import DatLogMessage, Level
 from dat_core.pydantic_models.stream_metadata import StreamMetadata
@@ -26,7 +26,7 @@ class WikipediaStream(Stream):
 
     def read_records(self,
         config: ConnectorSpecification,
-        sync_mode: SyncMode,
+        read_sync_mode: ReadSyncMode,
         cursor_field: Optional[List[str]] = None,
         stream_state: Optional[Mapping[str, Any]] = None
     ) -> DatMessage:
@@ -36,7 +36,7 @@ class WikipediaStream(Stream):
         Args:
             config (ConnectorSpecification): The user-provided configuration as specified by
               the source's spec. 
-            sync_mode (str): incremental|full
+            read_sync_mode (str): incremental|full
             cursor_field (List[str] | None, optional): The point from which data is to be fetched. Defaults to None.
             stream_state (Mapping[str, Any] | None, optional): Last watermark for the data fetched. Defaults to None.
 

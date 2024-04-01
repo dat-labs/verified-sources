@@ -68,7 +68,7 @@ class GoogleDrive(SourceBase):
 if __name__ == '__main__':
     import os
     from dat_core.pydantic_models.dat_catalog import DatCatalog, DatDocumentStream
-    from dat_core.pydantic_models.dat_document_stream import SyncMode
+    from dat_core.pydantic_models.dat_document_stream import ReadSyncMode
     from dat_core.connectors.state_managers import LocalStateManager
     from dat_core.pydantic_models import Type
     state_manager = LocalStateManager()
@@ -84,17 +84,15 @@ if __name__ == '__main__':
                 name='pdf',
                 namespace='my-gdrive-pdf-files',
                 dir_uris=['bak/MySQL/STAGING/for-dat-gdrive-test', ],
-                sync_mode=SyncMode.incremental,
+                read_sync_mode=ReadSyncMode.incremental,
                 # cursor_field='updated_at',
-                supported_sync_modes=[SyncMode.full_refresh, SyncMode.incremental]
             )
     txt_stream = DatDocumentStream(
                 name='txt',
                 namespace='my-gdrive-txt-files',
                 dir_uris=['bak/MySQL/STAGING/for-dat-gdrive-test', ],
-                sync_mode=SyncMode.incremental,
+                read_sync_mode=ReadSyncMode.incremental,
                 # cursor_field='updated_at',
-                supported_sync_modes=[SyncMode.full_refresh, SyncMode.incremental]
             )
     combined_state = {
         pdf_stream.namespace: state_manager.get_stream_state(pdf_stream),

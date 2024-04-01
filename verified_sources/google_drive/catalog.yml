@@ -13,7 +13,7 @@ properties:
             type: array
             items:
               type: string
-          sync_mode:
+          read_sync_mode:
             type: string
             enum:
               - full_refresh
@@ -28,7 +28,7 @@ properties:
             type: array
             items:
               type: string
-          sync_mode:
+          read_sync_mode:
             type: string
             enum:
               - full_refresh

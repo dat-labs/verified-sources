@@ -117,7 +117,6 @@ class GoogleDriveStream(Stream):
         resp = requests.get('https://www.googleapis.com/drive/v3/files', headers=headers, params=params)
         if resp.status_code == 200:
             files = resp.json().get('files', [])
-            print(files)
             for file in files:
                 file['modifiedTime'] = int(datetime.datetime.fromisoformat(file['modifiedTime']).timestamp())
                 file['createdTime'] = int(datetime.datetime.fromisoformat(file['createdTime']).timestamp())
@@ -184,10 +183,6 @@ class GoogleDriveStream(Stream):
         finally:
             if temp_file:
                 os.remove(temp_file.name)
-    
-    def _compare_cursor_values(self, old_cursor_value: Any, current_cursor_value: Any) -> bool:
-        # Should be implemented by streams
-        return old_cursor_value != current_cursor_value
 
 
 class GDrivePdfStream(GoogleDriveStream):
@@ -210,5 +205,5 @@ class GDriveTxtStream(GoogleDriveStream):
         Inherits all attributes from GoogleDriveStream.
     """
     _name = 'txt'
-    __supported_mimetypes__ = ('application/txt', 'text/plain', 'text/x-log', 'text/x-sql')
+    __supported_mimetypes__ = ('application/txt', 'text/plain', 'text/x-log')
     _doc_splitter = TxtSplitter
