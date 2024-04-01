@@ -24,8 +24,8 @@ class GoogleDrive(SourceBase):
         """
         try:
             auth = BaseOauth2Authenticator(
-                client_id=config.connectionSpecification.get('client_id'),
-                client_secret=config.connectionSpecification.get('client_secret'),
+                client_id=config.connection_specification.get('client_id'),
+                client_secret=config.connection_specification.get('client_secret'),
                 token_refresh_endpoint='https://oauth2.googleapis.com/token',
                 scopes=[
                     'https://www.googleapis.com/auth/drive',
@@ -33,7 +33,7 @@ class GoogleDrive(SourceBase):
                     'https://www.googleapis.com/auth/drive.appdata',
                     ]
             )
-            auth.refresh_token = config.connectionSpecification.get('refresh_token')
+            auth.refresh_token = config.connection_specification.get('refresh_token')
             params = {
                 'fields': 'nextPageToken, files(id, name)'
             }
@@ -74,7 +74,7 @@ if __name__ == '__main__':
         'client_secret': os.environ.get('GOOGLE_DRIVE_CLIENT_SECRET'),
         'refresh_token': os.environ.get('GOOGLE_DRIVE_REFRESH_TOKEN'),
     }
-    config = ConnectorSpecification(name='GoogleDrive', connectionSpecification=conn_details, module_name='google_drive')
+    config = ConnectorSpecification(name='GoogleDrive', connection_specification=conn_details, module_name='google_drive')
     # print(gdrive.check(config=config))
     pdf_stream = DatDocumentStream(
                 name='pdf',
