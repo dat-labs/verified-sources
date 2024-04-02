@@ -81,7 +81,7 @@ if __name__ == '__main__':
                 name='pdf',
                 namespace='my-gdrive-pdf-files',
                 dir_uris=['bak/MySQL/STAGING/for-dat-gdrive-test', ],
-                read_sync_mode=ReadSyncMode.incremental,
+                read_sync_mode=ReadSyncMode.INCREMENTAL,
                 write_sync_mode=WriteSyncMode.append,
                 # cursor_field='updated_at',
             )
@@ -89,7 +89,7 @@ if __name__ == '__main__':
                 name='txt',
                 namespace='my-gdrive-txt-files',
                 dir_uris=['bak/MySQL/STAGING/for-dat-gdrive-test', ],
-                read_sync_mode=ReadSyncMode.incremental,
+                read_sync_mode=ReadSyncMode.INCREMENTAL,
                 write_sync_mode=WriteSyncMode.append
                 # cursor_field='updated_at',
             )

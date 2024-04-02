@@ -17,5 +17,5 @@ properties:
           supported_sync_modes:
             type: string
             enum:
-              - incremental
-              - full
+              - INCREMENTAL
+              - FULL
