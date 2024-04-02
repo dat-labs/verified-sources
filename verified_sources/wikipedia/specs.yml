@@ -5,7 +5,8 @@ required:
   - connection_specification
 additionalProperties: true
 properties:
-  # General Properties (Common to all connectors)
+  name: 'Wikipedia'
+  module_name: 'wikipedia'
   protocol_version: 1.0
   documentationUrl: 'www.example.com'
   changelogUrl: 'www.example.com'

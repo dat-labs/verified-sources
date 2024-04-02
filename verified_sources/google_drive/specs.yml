@@ -5,6 +5,8 @@ required:
   - connection_specification
 additionalProperties: true
 properties:
+  name: 'GoogleDrive'
+  module_name: 'google_drive'
   protocol_version: 1.0
   documentationUrl: 'https://developers.google.com/drive/api/guides/about-sdk'
   changelogUrl: 'www.example.com'
