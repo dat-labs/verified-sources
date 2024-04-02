@@ -22,7 +22,7 @@ class GoogleDriveStream(Stream):
         _config (ConnectorSpecification): The connector configuration.
         auth (BaseOauth2Authenticator): The OAuth2 authenticator instance.
     """
-
+    TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
     __supported_mimetypes__ = ('text/plain', )
     __required_scopes__ = [
         'https://www.googleapis.com/auth/drive',
@@ -118,8 +118,10 @@ class GoogleDriveStream(Stream):
         if resp.status_code == 200:
             files = resp.json().get('files', [])
             for file in files:
-                file['modifiedTime'] = int(datetime.datetime.fromisoformat(file['modifiedTime']).timestamp())
-                file['createdTime'] = int(datetime.datetime.fromisoformat(file['createdTime']).timestamp())
+                file['modifiedTime'] = int(datetime.datetime.strptime(
+                    file['modifiedTime'], self.TIMESTAMP_FORMAT).timestamp())
+                file['createdTime'] = int(datetime.datetime.strptime(
+                    file['createdTime'], self.TIMESTAMP_FORMAT).timestamp())
 
             files = sorted(files, key=lambda file: file['modifiedTime'])
             return files
