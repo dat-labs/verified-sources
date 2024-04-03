@@ -4,11 +4,13 @@ import os
 from contextlib import contextmanager
 from typing import Any, Generator, List, Mapping, Optional, Dict
 from dat_core.connectors.sources.stream import Stream
-from dat_core.pydantic_models.connector_specification import ConnectorSpecification
-from dat_core.pydantic_models.dat_message import DatMessage, Type, DatDocumentMessage, Data
-from dat_core.pydantic_models.dat_log_message import DatLogMessage, Level
+from dat_core.pydantic_models import (
+    ConnectorSpecification,
+    DatMessage,
+    DatCatalog,
+    DatDocumentStream,
+)
 from dat_core.auth.oauth2_authenticator import BaseOauth2Authenticator
-from dat_core.pydantic_models.dat_catalog import DatCatalog, DatDocumentStream
 from dat_core.doc_splitters import PdfSplitter, BaseSplitter, TxtSplitter
 
 class GoogleDriveStream(Stream):
