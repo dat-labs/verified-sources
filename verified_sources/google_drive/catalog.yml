@@ -1,0 +1,40 @@
+type: object
+allOf:
+- "$ref": "/home/rahul/Work/dat-core/dat_core/specs/DatCatalog.yml"
+properties:
+  streams:
+    type: array
+    items:
+      - type: object
+        allOf:
+        - "$ref": "/home/rahul/Work/dat-core/dat_core/specs/DatDocumentStream.yml"
+        required:
+          - dir_uris
+        properties:
+          name:
+            type: string
+            default: pdf
+          namespace:
+            description: "namespace the data is associated with"
+            type: string
+          dir_uris:
+            type: array
+            items:
+              type: string
+          
+      - type: object
+        allOf:
+        - "$ref": "/home/rahul/Work/dat-core/dat_core/specs/DatDocumentStream.yml"
+        required:
+          - dir_uris
+        properties:
+          name:
+            type: string
+            default: txt
+          namespace:
+            description: "namespace the data is associated with"
+            type: string
+          dir_uris:
+            type: array
+            items:
+              type: string

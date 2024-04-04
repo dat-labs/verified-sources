@@ -1,0 +1,26 @@
+# ConnectorSpecification:
+description: Specification of a connector (source/embeddingsgenerator/destination)
+type: object
+required:
+  - connection_specification
+additionalProperties: true
+properties:
+  name: 'Wikipedia'
+  module_name: 'wikipedia'
+  protocol_version: 1.0
+  documentationUrl: 'www.example.com'
+  changelogUrl: 'www.example.com'
+  connection_specification:
+    description: ConnectorDefinition specific blob. Must be a valid JSON string.
+    type: object
+supportsIncremental: true
+supported_destination_sync_modes:
+  description: List of destination sync modes supported by the connector
+  type: array
+  items:
+    DestinationSyncMode:
+      type: string
+      enum:
+        - replace
+        - upsert
+        - append
