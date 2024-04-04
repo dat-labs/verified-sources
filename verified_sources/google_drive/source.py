@@ -4,7 +4,9 @@ from typing import List, Tuple, Any, Mapping
 from dat_core.connectors.sources.stream import Stream
 from dat_core.connectors.sources.base import SourceBase
 from dat_core.auth.oauth2_authenticator import BaseOauth2Authenticator
-from dat_core.pydantic_models import DatCatalog, ConnectorSpecification, DatConnectionStatus
+from dat_core.pydantic_models import (
+    ConnectorSpecification, DatConnectionStatus, DatMessage, DatLogMessage, Level
+)
 from verified_sources.google_drive.streams import GDrivePdfStream, GDriveTxtStream
 class GoogleDrive(SourceBase):
     """
@@ -40,18 +42,40 @@ class GoogleDrive(SourceBase):
             # print(auth.get_auth_header())
             resp = requests.get('https://www.googleapis.com/drive/v3/files', headers=auth.get_auth_header(), params=params)
             if resp.status_code == 200:
-                print(resp.json())
+                _log_msg = DatMessage(
+                    type=Type.LOG,
+                    log=DatLogMessage(
+                        level=Level.DEBUG,
+                        message=resp.json()
+                    )
+                )
+                print(_log_msg.model_dump_json(), flush=True)
                 conn_status = True
                 message = 'List files successful'
             else:
-                print(resp.text)
+                _error_msg = DatMessage(
+                    type=Type.LOG,
+                    log=DatLogMessage(
+                        level=Level.TRACE,
+                        message=resp.text
+                    )
+                )
+                print(_error_msg.model_dump_json(), flush=True)
                 conn_status = True
                 message = 'List files unsuccessful'
 
         except Exception as exc:
             # TODO: Raise or log proper exception
             conn_status = False
-            message = str(exc)
+            message = repr(exc)
+            _error_msg = DatMessage(
+                    type=Type.LOG,
+                    log=DatLogMessage(
+                        level=Level.ERROR,
+                        message=message
+                    )
+                )
+            print(_error_msg.model_dump_json(), flush=True)
 
         return conn_status, message
     

@@ -1,3 +1,4 @@
+import json
 import requests
 import datetime
 import os
@@ -9,6 +10,9 @@ from dat_core.pydantic_models import (
     DatMessage,
     DatCatalog,
     DatDocumentStream,
+    DatLogMessage,
+    Type,
+    Level
 )
 from dat_core.auth.oauth2_authenticator import BaseOauth2Authenticator
 from dat_core.doc_splitters import PdfSplitter, BaseSplitter, TxtSplitter
@@ -73,6 +77,14 @@ class GoogleDriveStream(Stream):
             'fields': 'nextPageToken, files(id, name, createdTime, modifiedTime)',
             'q': f"{mimetype_q} and '{folder_id}' in parents",
         }
+        _log_msg = DatMessage(
+                    type=Type.LOG,
+                    log=DatLogMessage(
+                        level=Level.DEBUG,
+                        message=json.dumps(params)
+                    )
+                )
+        print(_log_msg.model_dump_json(), flush=True)
         files = self.list_gdrive_objects(params)
         if cursor_value:
             files = self._slice_based_on_attr(files, _attr='modifiedTime', _value=cursor_value)
@@ -128,7 +140,14 @@ class GoogleDriveStream(Stream):
             files = sorted(files, key=lambda file: file['modifiedTime'])
             return files
         else:
-            print(resp.text)
+            _error_msg = DatMessage(
+                    type=Type.LOG,
+                    log=DatLogMessage(
+                        level=Level.TRACE,
+                        message=resp.text
+                    )
+                )
+            print(_error_msg.model_dump_json(), flush=True)
 
     def _traverse_folder_path(self, folder_path) -> int:
         """
@@ -155,8 +174,14 @@ class GoogleDriveStream(Stream):
             folders = self.list_gdrive_objects(params)
             if folders:
                 folder_id = folders[0]['id']
-                print('Found folder:', folders[0]['name'])
-
+                _error_msg = DatMessage(
+                    type=Type.LOG,
+                    log=DatLogMessage(
+                        level=Level.TRACE,
+                        message=f"Found folder: {folders[0]['name']}"
+                    )
+                )
+                print(_error_msg.model_dump_json(), flush=True)
         return folder_id
 
     @contextmanager
@@ -183,7 +208,14 @@ class GoogleDriveStream(Stream):
                 temp_file.write(resp.content)
                 yield temp_file.name
             else:
-                print(resp.text)
+                _error_msg = DatMessage(
+                    type=Type.LOG,
+                    log=DatLogMessage(
+                        level=Level.TRACE,
+                        message=resp.text
+                    )
+                )
+                print(_error_msg.model_dump_json(), flush=True)
         finally:
             if temp_file:
                 os.remove(temp_file.name)
