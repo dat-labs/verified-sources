@@ -8,7 +8,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-dat-core = {git = "ssh://git@github.com/riju-dc/dat-core", rev = "feature/base-classes"}
+dat-core = {git = "ssh://git@github.com/dat-labs/dat-core", rev = "main", develop = true}
 
 
 [tool.poetry.group.dev.dependencies]
