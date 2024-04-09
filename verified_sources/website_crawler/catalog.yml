@@ -1,0 +1,24 @@
+# VectorizeCatalog:
+description: Specification of VectorizeCatalog
+type: object
+required:
+  - document_streams
+properties:
+  document_streams:
+    type: array
+    items:
+      type: object
+      allOf:
+        - "$ref": "https://raw.githubusercontent.com/dat-labs/dat-core/main/dat_core/specs/DatDocumentStream.yml"
+      required:
+        - site_url
+      properties:
+        name:
+          type: string
+          default: crawler
+        namespace:
+          description: "namespace the data is associated with"
+          type: string
+        site_url:
+          description: "URL of the webpage you want to crawl"
+          type: string
