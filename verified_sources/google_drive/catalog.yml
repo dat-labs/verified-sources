@@ -1,13 +1,11 @@
 type: object
-allOf:
-- "$ref": "/home/rahul/Work/dat-core/dat_core/specs/DatCatalog.yml"
 properties:
   streams:
     type: array
     items:
       - type: object
         allOf:
-        - "$ref": "/home/rahul/Work/dat-core/dat_core/specs/DatDocumentStream.yml"
+        - "$ref": "https://raw.githubusercontent.com/dat-labs/dat-core/main/dat_core/specs/DatDocumentStream.yml"
         required:
           - dir_uris
         properties:
@@ -24,7 +22,7 @@ properties:
           
       - type: object
         allOf:
-        - "$ref": "/home/rahul/Work/dat-core/dat_core/specs/DatDocumentStream.yml"
+        - "$ref": "https://raw.githubusercontent.com/dat-labs/dat-core/main/dat_core/specs/DatDocumentStream.yml"
         required:
           - dir_uris
         properties:

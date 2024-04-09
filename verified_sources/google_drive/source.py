@@ -1,6 +1,6 @@
 import os
 import requests
-from typing import List, Tuple, Any, Mapping
+from typing import List
 from dat_core.connectors.sources.stream import Stream
 from dat_core.connectors.sources.base import SourceBase
 from dat_core.auth.oauth2_authenticator import BaseOauth2Authenticator
@@ -12,8 +12,8 @@ class GoogleDrive(SourceBase):
     """
     GoogleDrive as a source
     """
-    _spec_file = 'https://raw.githubusercontent.com/dc-rahul/verified-sources/feature/google-drive-and-wikipedia-forked/verified_sources/google_drive/specs.yml'
-    _catalog_file = 'https://raw.githubusercontent.com/dc-rahul/verified-sources/feature/google-drive-and-wikipedia-forked/verified_sources/google_drive/catalog.yml'
+    _spec_file = 'https://raw.githubusercontent.com/dat-labs/verified-sources/main/verified_sources/google_drive/specs.yml'
+    _catalog_file = 'https://raw.githubusercontent.com/dat-labs/verified-sources/main/verified_sources/google_drive/catalog.yml'
 
     def check_connection(self, config: ConnectorSpecification) -> DatConnectionStatus:
         """Checks the connection to Google Drive using the provided configuration.
