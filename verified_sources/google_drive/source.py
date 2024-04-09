@@ -106,7 +106,7 @@ if __name__ == '__main__':
                 namespace='my-gdrive-pdf-files',
                 dir_uris=['bak/MySQL/STAGING/for-dat-gdrive-test', ],
                 read_sync_mode=ReadSyncMode.INCREMENTAL,
-                write_sync_mode=WriteSyncMode.append,
+                write_sync_mode=WriteSyncMode.APPEND,
                 # cursor_field='updated_at',
             )
     txt_stream = TxtStream(
@@ -114,7 +114,7 @@ if __name__ == '__main__':
                 namespace='my-gdrive-txt-files',
                 dir_uris=['bak/MySQL/STAGING/for-dat-gdrive-test', ],
                 read_sync_mode=ReadSyncMode.INCREMENTAL,
-                write_sync_mode=WriteSyncMode.append
+                write_sync_mode=WriteSyncMode.APPEND
                 # cursor_field='updated_at',
             )
     combined_state = {
