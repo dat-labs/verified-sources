@@ -174,14 +174,17 @@ class GoogleDriveStream(Stream):
             folders = self.list_gdrive_objects(params)
             if folders:
                 folder_id = folders[0]['id']
+            else:
                 _error_msg = DatMessage(
                     type=Type.LOG,
                     log=DatLogMessage(
                         level=Level.TRACE,
-                        message=f"Found folder: {folders[0]['name']}"
+                        message=f"Unable to traverse to path: {folder_path}"
                     )
                 )
                 print(_error_msg.model_dump_json(), flush=True)
+                # TODO: Raise proper error
+                raise Exception(_error_msg.model_dump_json())
         return folder_id
 
     @contextmanager
