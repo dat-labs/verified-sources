@@ -1,3 +1,20 @@
+"""
+Module: website_crawler_module
+
+This module contains the definition of the WebsiteCrawler class, which is a SourceBase subclass for crawling websites.
+
+Classes:
+    WebsiteCrawler: A class for crawling websites and creating URLCrawler streams.
+
+Dependencies:
+    - dat_core.connectors.sources.stream.Stream: A Stream class from the dat_core.connectors.sources.stream module.
+    - requests: Used for making HTTP requests.
+    - typing: Used for type hints.
+    - dat_core.connectors.sources.base.SourceBase: A SourceBase class from the dat_core.connectors.sources.base module.
+    - dat_core.pydantic_models.ConnectorSpecification: A ConnectorSpecification class from the dat_core.pydantic_models module.
+    - verified_sources.website_crawler.streams.URLCrawler: A URLCrawler class from the verified_sources.website_crawler.streams module.
+"""
+
 from dat_core.connectors.sources.stream import Stream
 import requests
 from typing import Any, List, Mapping, Tuple
@@ -6,22 +23,48 @@ from dat_core.pydantic_models import ConnectorSpecification
 from verified_sources.website_crawler.streams import URLCrawler
 
 class WebsiteCrawler(SourceBase):
+    """
+    WebsiteCrawler class for crawling websites and creating URLCrawler streams.
+
+    Methods:
+        check_connection: Checks the connection to a website URL.
+        streams: Generates URLCrawler streams based on the configuration.
+    """
 
     def check_connection(self, config: ConnectorSpecification) -> Tuple[bool, Any | None]:
+        """
+        Checks the connection to a website URL.
+
+        Parameters:
+            config (ConnectorSpecification): The connector specification object.
+
+        Returns:
+            Tuple[bool, Any | None]: A tuple indicating the connection status (True for success, False for failure) and an optional message.
+        """
         try:
             resp = requests.get(config.connection_specification.site_url)
             resp.raise_for_status()
-            result, msg = True, 'url working'
+            result, msg = True, 'URL is working'
         except requests.exceptions.ConnectionError as exc:
             print(repr(exc))
-            result, msg = False, 'url not working'
+            result, msg = False, 'URL is not working'
 
         return result, msg
     
-    def streams(self, config: Mapping[str, Any], json_schemas: Mapping[str, Mapping[str, Any]] = None) -> List[Stream]:
+    def streams(self, config: Mapping[str, Any]) -> List[Stream]:
+        """
+        Generates URLCrawler streams based on the configuration.
+
+        Parameters:
+            config (Mapping[str, Any]): The configuration mapping.
+
+        Returns:
+            List[Stream]: A list of URLCrawler streams.
+        """
         return [
             URLCrawler(config)
         ]
+
 
 if __name__ == '__main__':
     from dat_core.pydantic_models import ReadSyncMode, WriteSyncMode
@@ -31,7 +74,8 @@ if __name__ == '__main__':
         Advanced, ChunkingStrategy
         )
 
-    _specs = WebsiteCrawlerSpecification(connection_specification={'site_url': 'https://shopify.dev/docs/api/usage/pagination-graphql'})
+    _specs = WebsiteCrawlerSpecification(
+        connection_specification={'site_url': 'https://shopify.dev/docs/api/usage/pagination-graphql'})
     website_crawler = WebsiteCrawler()
     print(website_crawler.check(_specs))
     _stream = Crawler(
