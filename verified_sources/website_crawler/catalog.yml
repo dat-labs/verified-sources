@@ -13,7 +13,7 @@ properties:
       properties:
         name:
           type: string
-          default: crawler
+          default: url_crawler
         namespace:
           description: "namespace the data is associated with"
           type: string
@@ -43,5 +43,7 @@ properties:
                   minItems: 1
                   items:
                     - type: array
+                      items:
+                        type: string
                       minItems: 2
                       maxItems: 2
