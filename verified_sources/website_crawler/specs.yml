@@ -3,8 +3,6 @@ description: Specification of a connector (source/embeddingsgenerator/destinatio
 type: object
 required:
   - connection_specification
-  - name
-  - module_name
 additionalProperties: true
 properties:
   # General Properties (Common to all connectors)
@@ -12,12 +10,17 @@ properties:
     type: string
     format: uri
   name:
-    description: "The name of the specific connector to which this ConnectorSpecification belongs."
     type: string
+    default: 'Website Crawler'
   module_name:
-    description: "Name of the python module for this connector"
     type: string
+    default: 'website_crawler'
   connection_specification:
     description: ConnectorDefinition specific blob. Must be a valid JSON string.
     type: object
+    required:
+      - site_url
+    properties:
+      site_url:
+        type: string
   # Connector Type Properties (Common to all connectors from same type)
