@@ -70,10 +70,10 @@ class URLCrawler(Stream):
         }
         doc_splitter = doc_splitter_factory.create(
             filepath=self._config.connection_specification.site_url,
-            loader_key=DocLoaderType.WEB_CRAWLER.value,
+            loader_key=DocLoaderType.WEB_CRAWLER,
             splitter_key=configured_stream.advanced.chunking_strategy.strategy,
             loader_config=_loader_config,
-            splitter_config=configured_stream.advanced.chunking_strategy.config.model_dump()
+            splitter_config=configured_stream.advanced.chunking_strategy.config
             )
         for chunk in doc_splitter.load_and_chunk():
             try:
