@@ -22,28 +22,40 @@ properties:
           type: object
           properties:
             chunking_strategy:
-              type: string
-              default: recursiverly_split_by_character
-              enum:
-                - split_by_html_header
-                - split_by_html_section
-                - split_by_character
-                - split_code
-                - markdown_header_text_splitter
-                - recursively_split_json
-                - recursiverly_split_by_character
-                - semantic_chunking
-                - split_by_tokens
-            splitter_config:
               type: object
-              properties:
-                headers_to_split_on:
-                  description: "list of tuples of headers we want to track mapped to (arbitrary) keys for metadata. Allowed header values: h1, h2, h3, h4, h5, h6"
-                  type: array
-                  minItems: 1
-                  items:
-                    - type: array
-                      items:
-                        type: string
-                      minItems: 2
-                      maxItems: 2
+              oneOf:
+                - type: object
+                  properties:
+                    strategy:
+                      type: string
+                      default: SPLIT_BY_HTML_HEADER
+                    config:
+                      type: object
+                      properties:
+                        headers_to_split_on:
+                          type: array
+                          description: "list of headers we want to track mapped to (arbitrary) keys for metadata. Allowed header values: h1, h2, h3, h4, h5, h6"
+                          default: ['h2', 'h3']
+                          items:
+                            - type: string
+                        
+                - type: object
+                  properties:
+                    strategy:
+                      type: string
+                      default: SPLIT_BY_CHARACTER
+                    config:
+                      type: object
+                      properties:
+                        separator:
+                          type: string
+                          default: '\n\n'
+
+              # enum:
+              #   - SPLIT_BY_HTML_HEADER
+              #   - SPLIT_BY_CHARACTER
+              #   - SPLIT_CODE
+              #   - SPLIT_BY_MARKDOWN_HEADER
+              #   - SPLIT_JSON_RECURSIVELY
+              #   - SPLIT_BY_CHARACTER_RECURSIVELY
+              #   - SPLIT_BY_TOKENS

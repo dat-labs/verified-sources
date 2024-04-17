@@ -20,7 +20,7 @@ Dependencies:
 from typing import Any, Generator
 from dat_core.connectors.sources.stream import Stream
 from dat_core.pydantic_models import DatCatalog, DatDocumentStream, DatMessage, StreamState
-from dat_core.doc_splitters.factory import doc_splitter_factory
+from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
 from verified_sources.website_crawler.specs import WebsiteCrawlerSpecification
 
 class URLCrawler(Stream):
@@ -70,15 +70,20 @@ class URLCrawler(Stream):
         }
         doc_splitter = doc_splitter_factory.create(
             filepath=self._config.connection_specification.site_url,
-            loader_key='web_crawler',
-            splitter_key=str(configured_stream.advanced.chunking_strategy),
+            loader_key=DocLoaderType.WEB_CRAWLER.value,
+            splitter_key=configured_stream.advanced.chunking_strategy.strategy,
             loader_config=_loader_config,
-            splitter_config=configured_stream.advanced.splitter_config.model_dump()
+            splitter_config=configured_stream.advanced.chunking_strategy.config.model_dump()
             )
         for chunk in doc_splitter.load_and_chunk():
+            try:
+                # Sometimes load_and_chunk return Document object, sometimes it's string
+                _doc_chunk = chunk.page_content
+            except (ValueError, AttributeError):
+                _doc_chunk = chunk
             yield self.as_record_message(
                 configured_stream=configured_stream,
-                doc_chunk=chunk.page_content,
+                doc_chunk=_doc_chunk,
                 data_entity=self._config.connection_specification.site_url,
                 extra_metadata={'site_url': self._config.connection_specification.site_url}
             )

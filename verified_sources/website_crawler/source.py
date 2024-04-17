@@ -84,7 +84,7 @@ if __name__ == '__main__':
     from verified_sources.website_crawler.specs import WebsiteCrawlerSpecification
     from verified_sources.website_crawler.catalog import (
         WebCrawlerCatalog, Crawler,
-        Advanced, ChunkingStrategy
+        Advanced, ByCharacter, ByHtmlHeader, ByHtmlHeaderConfig
         )
 
     _specs = WebsiteCrawlerSpecification(
@@ -96,8 +96,8 @@ if __name__ == '__main__':
         read_sync_mode=ReadSyncMode.FULL_REFRESH,
         write_sync_mode=WriteSyncMode.REPLACE,
         advanced=Advanced(
-            chunking_strategy=ChunkingStrategy.split_by_html_header,
-            splitter_config={'headers_to_split_on': [('h2', 'h2'), ]}
+            chunking_strategy=ByHtmlHeader(config=ByHtmlHeaderConfig()),
+            # splitter_config={'headers_to_split_on': [('h2', 'h2'), ]}
             )
     )
     _catalog = WebCrawlerCatalog(document_streams=[_stream,])
