@@ -15,7 +15,7 @@ from dat_core.pydantic_models import (
     Level
 )
 from dat_core.auth.oauth2_authenticator import BaseOauth2Authenticator
-from dat_core.doc_splitters import PdfSplitter, BaseSplitter, TxtSplitter
+from dat_core.doc_splitters.factory import doc_splitter_factory
 
 class GoogleDriveStream(Stream):
     """
@@ -35,7 +35,7 @@ class GoogleDriveStream(Stream):
         'https://www.googleapis.com/auth/drive.file',
         'https://www.googleapis.com/auth/drive.appdata',
     ]
-    _doc_splitter = BaseSplitter
+    _doc_loader = 'pypdf'
     _default_cursor = 'dat_last_modified'
 
     def __init__(self, config: ConnectorSpecification) -> None:
@@ -92,8 +92,13 @@ class GoogleDriveStream(Stream):
             with self.download_gdrive_file(file_id=file['id']) as temp_file:
                 data_entity=f'{configured_stream.dir_uris[0]}/{file["name"]}'
                 extra_metadata = {'updated_at': file['modifiedTime'], 'created_at': file['createdTime']}
-                for doc_chunk in self._doc_splitter(
-                    filepath=temp_file, strategy='page').yield_chunks():
+                _doc_splitter = doc_splitter_factory.create(
+                    filepath=temp_file,
+                    loader_key=self._doc_loader,
+                    splitter_key='recursiverly_split_by_character',
+                    loader_config={'file_path': temp_file}
+                )
+                for doc_chunk in _doc_splitter.load_and_chunk():
                     yield self.as_record_message(
                         configured_stream=configured_stream,
                         doc_chunk=doc_chunk,
@@ -233,7 +238,7 @@ class GDrivePdfStream(GoogleDriveStream):
     """
     _name = 'pdf'
     __supported_mimetypes__ = ('application/pdf',)
-    _doc_splitter = PdfSplitter
+    _doc_loader = 'pypdf'
 
 
 class GDriveTxtStream(GoogleDriveStream):
@@ -245,4 +250,4 @@ class GDriveTxtStream(GoogleDriveStream):
     """
     _name = 'txt'
     __supported_mimetypes__ = ('application/txt', 'text/plain', 'text/x-log')
-    _doc_splitter = TxtSplitter
+    _doc_loader = 'text'

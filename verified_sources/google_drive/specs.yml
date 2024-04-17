@@ -5,11 +5,19 @@ required:
   - connection_specification
 additionalProperties: true
 properties:
-  name: 'GoogleDrive'
-  module_name: 'google_drive'
+  name:
+    type: string
+    default: 'GoogleDrive'
+  module_name:
+    type: string
+    default: 'google_drive'
   protocol_version: 1.0
-  documentationUrl: 'https://developers.google.com/drive/api/guides/about-sdk'
-  changelogUrl: 'www.example.com'
+  documentationUrl:
+    type: string
+    default: 'https://developers.google.com/drive/api/guides/about-sdk'
+  changelogUrl:
+    type: string
+    default: 'www.example.com'
   connection_specification:
     description: ConnectorDefinition specific blob. Must be a valid JSON string.
     type: object

@@ -19,7 +19,13 @@ from dat_core.connectors.sources.stream import Stream
 import requests
 from typing import Any, List, Mapping, Tuple
 from dat_core.connectors.sources.base import SourceBase
-from dat_core.pydantic_models import ConnectorSpecification
+from dat_core.pydantic_models import (
+    ConnectorSpecification,
+    DatMessage,
+    DatLogMessage,
+    Type,
+    Level
+)
 from verified_sources.website_crawler.streams import URLCrawler
 
 class WebsiteCrawler(SourceBase):
@@ -45,8 +51,15 @@ class WebsiteCrawler(SourceBase):
             resp = requests.get(config.connection_specification.site_url)
             resp.raise_for_status()
             result, msg = True, 'URL is working'
-        except requests.exceptions.ConnectionError as exc:
-            print(repr(exc))
+        except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError) as exc:
+            _msg = DatMessage(
+                type=Type.LOG,
+                log=DatLogMessage(
+                    level=Level.ERROR,
+                    message=repr(exc)
+                )
+            )
+            print(_msg.model_dump_json())
             result, msg = False, 'URL is not working'
 
         return result, msg
