@@ -12,8 +12,8 @@ class GoogleDrive(SourceBase):
     """
     GoogleDrive as a source
     """
-    _spec_file = 'https://raw.githubusercontent.com/dat-labs/verified-sources/main/verified_sources/google_drive/specs.yml'
-    _catalog_file = 'https://raw.githubusercontent.com/dat-labs/verified-sources/main/verified_sources/google_drive/catalog.yml'
+    _spec_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'specs.yml')
+    _catalog_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'catalog.yml')
 
     def check_connection(self, config: ConnectorSpecification) -> DatConnectionStatus:
         """Checks the connection to Google Drive using the provided configuration.
