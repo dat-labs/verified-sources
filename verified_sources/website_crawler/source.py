@@ -80,11 +80,10 @@ class WebsiteCrawler(SourceBase):
 
 
 if __name__ == '__main__':
-    from dat_core.pydantic_models import ReadSyncMode, WriteSyncMode
+    from dat_core.pydantic_models import ReadSyncMode, WriteSyncMode, Advanced, SplitByHtmlHeaderSettings, SplitByHtmlHeaderExtraConfig
     from verified_sources.website_crawler.specs import WebsiteCrawlerSpecification
     from verified_sources.website_crawler.catalog import (
-        WebCrawlerCatalog, Crawler,
-        Advanced, ByCharacter, ByHtmlHeader, ByHtmlHeaderConfig
+        WebCrawlerCatalog, Crawler
         )
 
     _specs = WebsiteCrawlerSpecification(
@@ -93,11 +92,10 @@ if __name__ == '__main__':
     print(website_crawler.check(_specs))
     _stream = Crawler(
         namespace='my-crawler',
-        read_sync_mode=ReadSyncMode.FULL_REFRESH,
+        read_sync_mode=ReadSyncMode.INCREMENTAL,
         write_sync_mode=WriteSyncMode.REPLACE,
         advanced=Advanced(
-            chunking_strategy=ByHtmlHeader(config=ByHtmlHeaderConfig()),
-            # splitter_config={'headers_to_split_on': [('h2', 'h2'), ]}
+            splitter_settings=SplitByHtmlHeaderSettings(config=SplitByHtmlHeaderExtraConfig()),
             )
     )
     _catalog = WebCrawlerCatalog(document_streams=[_stream,])
