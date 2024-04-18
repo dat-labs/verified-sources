@@ -165,3 +165,4 @@ poetry.lock
 # Additional scripts
 verified_stub*
 
+.vscode/
