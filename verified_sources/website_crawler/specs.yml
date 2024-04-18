@@ -5,30 +5,22 @@ required:
   - connection_specification
 additionalProperties: true
 properties:
+  # General Properties (Common to all connectors)
+  documentation_url:
+    type: string
+    format: uri
   name:
     type: string
-    default: 'GoogleDrive'
+    default: 'Website Crawler'
   module_name:
     type: string
-    default: 'google_drive'
-  protocol_version: 1.0
-  documentationUrl:
-    type: string
-    default: 'https://developers.google.com/drive/api/guides/about-sdk'
-  changelogUrl:
-    type: string
-    default: 'www.example.com'
+    default: 'website_crawler'
   connection_specification:
     description: ConnectorDefinition specific blob. Must be a valid JSON string.
     type: object
     required:
-      - client_id
-      - client_secret
-      - refresh_token
+      - site_url
     properties:
-      client_id:
+      site_url:
         type: string
-      client_secret:
-        type: string
-      refresh_token:
-        type: string
+  # Connector Type Properties (Common to all connectors from same type)

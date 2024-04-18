@@ -8,6 +8,8 @@ from dat_core.pydantic_models import (
     ConnectorSpecification, DatConnectionStatus, DatMessage, DatLogMessage, Level
 )
 from verified_sources.google_drive.streams import GDrivePdfStream, GDriveTxtStream
+from verified_sources.google_drive.specs import GoogleDriveSpecification
+
 class GoogleDrive(SourceBase):
     """
     GoogleDrive as a source
@@ -15,7 +17,7 @@ class GoogleDrive(SourceBase):
     _spec_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'specs.yml')
     _catalog_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'catalog.yml')
 
-    def check_connection(self, config: ConnectorSpecification) -> DatConnectionStatus:
+    def check_connection(self, config: GoogleDriveSpecification) -> DatConnectionStatus:
         """Checks the connection to Google Drive using the provided configuration.
 
         Args:

@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import List, Optional, Union
 
 from pydantic import Field
-from dat_core.pydantic_models import DatDocumentStream, DatCatalog
+from dat_core.pydantic_models import DatDocumentStream, DatCatalog, Advanced
 
 
 class PdfStream(DatDocumentStream):
@@ -16,6 +16,9 @@ class PdfStream(DatDocumentStream):
         None, description='namespace the data is associated with'
     )
     dir_uris: List[str]
+    advanced: Optional[Advanced] = Field(
+        None, description='Additional optional settings'
+    )
 
 
 class TxtStream(DatDocumentStream):
@@ -24,6 +27,9 @@ class TxtStream(DatDocumentStream):
         None, description='namespace the data is associated with'
     )
     dir_uris: List[str]
+    advanced: Optional[Advanced] = Field(
+        None, description='Additional optional settings'
+    )
 
 
 class GoogleDriveCatalog(DatCatalog):
