@@ -14,7 +14,7 @@ Dependencies:
     - dat_core.pydantic_models.ConnectorSpecification: A ConnectorSpecification class from the dat_core.pydantic_models module.
     - verified_sources.website_crawler.streams.URLCrawler: A URLCrawler class from the verified_sources.website_crawler.streams module.
 """
-
+import os
 from dat_core.connectors.sources.stream import Stream
 import requests
 from typing import Any, List, Mapping, Tuple
@@ -36,6 +36,8 @@ class WebsiteCrawler(SourceBase):
         check_connection: Checks the connection to a website URL.
         streams: Generates URLCrawler streams based on the configuration.
     """
+    _spec_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'specs.yml')
+    _catalog_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'catalog.yml')
 
     def check_connection(self, config: ConnectorSpecification) -> Tuple[bool, Any | None]:
         """
