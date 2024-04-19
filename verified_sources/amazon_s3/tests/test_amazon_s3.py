@@ -43,5 +43,4 @@ def test_read(valid_connection_object, valid_catalog_object):
         config=config,
         catalog=AmazonS3Catalog(**valid_catalog_object),
     )
-
     assert DatMessage.model_validate(next(records))

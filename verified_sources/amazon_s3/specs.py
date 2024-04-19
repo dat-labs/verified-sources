@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional
 
 from pydantic import AnyUrl, BaseModel, Field
 
+
 class ConnectionSpecification(BaseModel):
     class Config:
         extra = 'allow'
@@ -16,11 +17,6 @@ class ConnectionSpecification(BaseModel):
     aws_secret_key: str
     bucket_name: str
     region_name: str
-
-    # aws_access_id: str
-    # aws_access_secret: str
-    # bucket: str
-    # # region_name: str
 
 
 class AmazonS3Specification(BaseModel):

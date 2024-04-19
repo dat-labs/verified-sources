@@ -7,10 +7,13 @@ from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, 
 from verified_sources.amazon_s3.streams import S3TxtStream
 from verified_sources.amazon_s3.specs import AmazonS3Specification
 
+
 class AmazonS3(SourceBase):
 
-    _spec_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'specs.yml')
-    _catalog_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'catalog.yml')
+    _spec_file = os.path.join(os.path.dirname(
+        os.path.abspath(__file__)), 'specs.yml')
+    _catalog_file = os.path.join(os.path.dirname(
+        os.path.abspath(__file__)), 'catalog.yml')
 
     def check_connection(self, config: AmazonS3Specification) -> Tuple[bool, Optional[Any]]:
         connected, message = False, 'Connection failed'
@@ -23,7 +26,8 @@ class AmazonS3(SourceBase):
                 aws_access_id=config.connection_specification.aws_access_key,
                 aws_access_secret=config.connection_specification.aws_secret_key,
                 bucket=config.connection_specification.bucket_name,
-                prefix=config.connection_specification.prefix # TODO Pass a testing URL in connection specification itself
+                # TODO Pass a testing URL in connection specification itself
+                prefix=config.connection_specification.dir_prefix
             )
         )
         try:

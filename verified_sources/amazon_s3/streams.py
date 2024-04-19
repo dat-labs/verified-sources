@@ -4,6 +4,7 @@ from dat_core.pydantic_models import DatCatalog, DatDocumentStream, DatMessage, 
 from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
 from verified_sources.amazon_s3.specs import AmazonS3Specification
 
+
 class S3TxtStream(Stream):
     """
     S3TxtStream class for crawling and processing URLs.
@@ -26,8 +27,8 @@ class S3TxtStream(Stream):
             config (AmazonS3Specification): The configuration object for URL crawling.
         """
         self._config = config
-    
-    def read_records(self, 
+
+    def read_records(self,
         catalog: DatCatalog,
         configured_stream: DatDocumentStream,
         cursor_value: Any = None
