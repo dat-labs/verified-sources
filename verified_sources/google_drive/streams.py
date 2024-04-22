@@ -93,7 +93,6 @@ class GoogleDriveStream(Stream):
                 data_entity=f'{configured_stream.dir_uris[0]}/{file["name"]}'
                 extra_metadata = {'updated_at': file['modifiedTime'], 'created_at': file['createdTime']}
                 _doc_splitter = doc_splitter_factory.create(
-                    filepath=temp_file,
                     loader_key=self._doc_loader.value,
                     splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY.value,
                     loader_config={'file_path': temp_file}
