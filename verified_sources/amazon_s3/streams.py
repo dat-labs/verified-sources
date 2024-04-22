@@ -76,17 +76,30 @@ class S3BaseStream(Stream):
                         ),
                         splitter_config=configured_stream.advanced.splitter_settings.config
                 )
-                for doc in _doc_loader_and_splitter.load():
-                    for _doc_chunk in _doc_loader_and_splitter.split_text(doc.page_content):
-                        yield self.as_record_message(
-                            configured_stream=configured_stream,
-                            doc_chunk=_doc_chunk,
-                            data_entity=obj['Key'],
-                            dat_last_modified=obj['LastModified'].timestamp()
-                        )
+                for _doc_chunk in _doc_loader_and_splitter.load_and_chunk():
+                    yield self.as_record_message(
+                        configured_stream=configured_stream,
+                        doc_chunk=_doc_chunk,
+                        data_entity=obj['Key'],
+                        dat_last_modified=obj['LastModified'].timestamp()
+                    )
     
     def _filter_objects_to_process(self,
         objects: Iterable[dict], cursor_value: int) -> Generator[dict, Any, Any]:
+        """
+        Filters objects based on their last modification timestamp and supported file types.
+
+        Args:
+            self: The current object instance.
+            objects (Iterable[dict]): Iterable of objects to filter.
+            cursor_value (int): Timestamp to compare with each object's last modified timestamp.
+
+        Yields:
+            Generator[dict, Any, Any]: A generator yielding filtered objects.
+
+        Returns:
+            None
+        """
         for obj in objects:
             if cursor_value and obj['LastModified'].timestamp() < cursor_value:
                 continue

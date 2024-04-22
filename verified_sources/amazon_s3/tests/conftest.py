@@ -15,6 +15,11 @@ def valid_catalog_object():
     yield {'document_streams': [
         {
             'name': 'txt',
-            'dir_prefix': 'tmp/dat'
+            'dir_prefix': 'tmp/dat',
+            'advanced': {
+                'splitter_settings': {
+                    'strategy': 'SPLIT_BY_CHARACTER'
+                }
+            }
         }
     ]}
