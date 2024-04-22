@@ -15,7 +15,10 @@ def valid_catalog_object():
     yield {'document_streams': [
         {
             'name': 'txt',
+            'namespace': 'my-txt-stream',
             'dir_prefix': 'tmp/dat',
+            'read_sync_mode': 'INCREMENTAL',
+            'write_sync_mode': 'REPLACE',
             'advanced': {
                 'splitter_settings': {
                     'strategy': 'SPLIT_BY_CHARACTER'
@@ -23,3 +26,12 @@ def valid_catalog_object():
             }
         }
     ]}
+
+@fixture
+def valid_stream_state_object():
+    import datetime
+    yield {
+        'data': {
+            'dat_last_modified': int((datetime.datetime.now() - datetime.timedelta(days=1)).timestamp())
+        },
+    }
