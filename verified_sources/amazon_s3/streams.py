@@ -68,7 +68,6 @@ class S3BaseStream(Stream):
                     self._config.connection_specification.bucket_name, obj['Key'], file_path)
 
                 _doc_loader_and_splitter = doc_splitter_factory.create(
-                        filepath=file_path,
                         loader_key=self._doc_loader,
                         splitter_key=configured_stream.advanced.splitter_settings.strategy,
                         loader_config=dict(

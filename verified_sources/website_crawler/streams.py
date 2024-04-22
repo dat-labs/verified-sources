@@ -69,7 +69,6 @@ class URLCrawler(Stream):
             'web_path': self._config.connection_specification.site_url
         }
         doc_splitter = doc_splitter_factory.create(
-            filepath=self._config.connection_specification.site_url,
             loader_key=DocLoaderType.WEB_CRAWLER,
             splitter_key=configured_stream.advanced.splitter_settings.strategy,
             loader_config=_loader_config,
