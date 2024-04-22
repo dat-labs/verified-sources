@@ -12,10 +12,10 @@ properties:
     type: string
     default: 'google_drive'
   protocol_version: 1.0
-  documentationUrl:
+  documentation_url:
     type: string
     default: 'https://developers.google.com/drive/api/guides/about-sdk'
-  changelogUrl:
+  changelog_url:
     type: string
     default: 'www.example.com'
   connection_specification:
