@@ -25,11 +25,11 @@ class AmazonS3Specification(BaseModel):
 
     documentation_url: Optional[AnyUrl] = None
     name: str = Field(
-        ...,
+        'AmazonS3',
         description='The name of the specific connector to which this ConnectorSpecification belongs.',
     )
     module_name: str = Field(
-        ..., description='Name of the python module for this connector'
+        'amazon_s3', description='Name of the python module for this connector'
     )
     connection_specification: ConnectionSpecification = Field(
         ...,

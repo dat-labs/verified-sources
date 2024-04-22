@@ -1,11 +1,15 @@
-from typing import Any, Generator
+import datetime
+import tempfile
+import os
+from typing import Any, Generator, Iterable
+import boto3
 from dat_core.connectors.sources.stream import Stream
 from dat_core.pydantic_models import DatCatalog, DatDocumentStream, DatMessage, StreamState
 from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
 from verified_sources.amazon_s3.specs import AmazonS3Specification
 
 
-class S3TxtStream(Stream):
+class S3BaseStream(Stream):
     """
     S3TxtStream class for crawling and processing URLs.
 
@@ -16,8 +20,7 @@ class S3TxtStream(Stream):
         __init__: Initializes a new S3TxtStream object.
         read_records: Reads records from the configured stream and yields DatMessage objects.
     """
-
-    _name = 'txt'
+    _default_cursor = 'dat_last_modified'
 
     def __init__(self, config: AmazonS3Specification) -> None:
         """
@@ -27,6 +30,12 @@ class S3TxtStream(Stream):
             config (AmazonS3Specification): The configuration object for URL crawling.
         """
         self._config = config
+        self.s3_client = boto3.client(
+            's3',
+            region_name=config.connection_specification.region_name,
+            aws_access_key_id=config.connection_specification.aws_access_key,
+            aws_secret_access_key=config.connection_specification.aws_secret_key,
+            )
 
     def read_records(self,
         catalog: DatCatalog,
@@ -44,21 +53,56 @@ class S3TxtStream(Stream):
         Yields:
             Generator[DatMessage, Any, Any]: A generator yielding DatMessage objects.
         """
-        _doc_loader_and_splitter = doc_splitter_factory.create(
-            filepath='',
-            loader_key=DocLoaderType.S3_DIR_LOADER,
-            splitter_key=TextSplitterType.SPLIT_BY_CHARACTER,
-            loader_config=dict(
-                aws_access_id=self._config.connection_specification.aws_access_key,
-                aws_access_secret=self._config.connection_specification.aws_secret_key,
-                bucket=self._config.connection_specification.bucket_name,
-                prefix=configured_stream.dir_prefix
-            )
-        )
-        for doc in _doc_loader_and_splitter.load():
-            for _doc_chunk in _doc_loader_and_splitter.split_text(doc.page_content):
-                yield self.as_record_message(
-                    configured_stream=configured_stream,
-                    doc_chunk=_doc_chunk,
-                    data_entity=doc.filepath
+        objects = self.s3_client.list_objects_v2(
+            Bucket=self._config.connection_specification.bucket_name,
+            Prefix=configured_stream.dir_prefix
+            )['Contents']
+
+        objects = sorted(objects, key=lambda obj: obj['LastModified'].timestamp())
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            for obj in self._filter_objects_to_process(objects, cursor_value):
+                file_path = f"{temp_dir}/{obj['Key']}"
+                os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                self.s3_client.download_file(
+                    self._config.connection_specification.bucket_name, obj['Key'], file_path)
+
+                _doc_loader_and_splitter = doc_splitter_factory.create(
+                        filepath=file_path,
+                        loader_key=self._doc_loader,
+                        splitter_key=configured_stream.advanced.splitter_settings.strategy,
+                        loader_config=dict(
+                            file_path=file_path,
+                        ),
+                        splitter_config=configured_stream.advanced.splitter_settings.config
                 )
+                for doc in _doc_loader_and_splitter.load():
+                    for _doc_chunk in _doc_loader_and_splitter.split_text(doc.page_content):
+                        yield self.as_record_message(
+                            configured_stream=configured_stream,
+                            doc_chunk=_doc_chunk,
+                            data_entity=obj['Key'],
+                            dat_last_modified=obj['LastModified'].timestamp()
+                        )
+    
+    def _filter_objects_to_process(self,
+        objects: Iterable[dict], cursor_value: int) -> Generator[dict, Any, Any]:
+        for obj in objects:
+            if cursor_value and obj['LastModified'].timestamp() < cursor_value:
+                continue
+            for _doc_type in self._supported_file_types:
+                if obj['Key'].endswith(_doc_type):
+                    yield obj
+
+
+
+class S3TxtStream(S3BaseStream):
+    _name = 'txt'
+    _doc_loader = DocLoaderType.TEXT
+    _supported_file_types = ('.txt', '.log', '.csv')
+
+class S3PdfStream(S3BaseStream):
+    _name = 'pdf'
+    _doc_loader = DocLoaderType.PYPDF
+    _supported_file_types = ('.pdf',)
+

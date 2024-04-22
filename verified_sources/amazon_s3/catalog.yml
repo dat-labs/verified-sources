@@ -1,6 +1,6 @@
 type: object
 properties:
-  streams:
+  document_streams:
     type: array
     items:
       - type: object
@@ -12,5 +12,16 @@ properties:
           name:
             type: string
             default: txt
+          dir_prefix:
+            type: string
+      - type: object
+        allOf:
+        - "$ref": "https://raw.githubusercontent.com/dat-labs/dat-core/main/dat_core/specs/DatDocumentStream.yml"
+        required:
+          - dir_prefix
+        properties:
+          name:
+            type: string
+            default: pdf
           dir_prefix:
             type: string

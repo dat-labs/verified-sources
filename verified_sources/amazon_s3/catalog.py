@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from dat_core.pydantic_models import DatDocumentStream, DatCatalog
 
@@ -13,6 +13,10 @@ class TxtDatStream(DatDocumentStream):
     name: Optional[str] = 'txt'
     dir_prefix: str
 
+class PdfDatStream(DatDocumentStream):
+    name: Optional[str] = 'pdf'
+    dir_prefix: str
+
 
 class AmazonS3Catalog(DatCatalog):
-    document_streams: Optional[List[TxtDatStream]] = None
+    document_streams: List[Union[TxtDatStream, PdfDatStream]]

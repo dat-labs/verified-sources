@@ -8,7 +8,6 @@ def valid_connection_object():
         aws_secret_key = os.environ.get('AWS_SECRET_KEY'),
         bucket_name = os.environ.get('S3_BUCKET_NAME'),
         region_name = os.environ.get('S3_REGION'),
-        dir_prefix = 'tmp/dat'
     )
 
 @fixture()
