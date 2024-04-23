@@ -28,7 +28,16 @@ properties:
     properties:
       client_id:
         type: string
+        description: "client id for the project"
+        title: "Client ID"
+        order: 0
       client_secret:
         type: string
+        description: "client secret for the project"
+        title: "Client Secret"
+        order: 1
       refresh_token:
         type: string
+        description: "refresh token for the project"
+        title: "Refresh Token"
+        order: 2

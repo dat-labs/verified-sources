@@ -31,9 +31,21 @@ properties:
     properties:
       aws_access_key:
         type: string
+        description: "AWS access key for the project"
+        title: "AWS access key"
+        order: 0
       aws_secret_key:
         type: string
+        description: "AWS secret key for the project"
+        title: "AWS secret key"
+        order: 1
       bucket_name:
         type: string
+        description: "Bucket name for the project"
+        title: "Bucket name"
+        order: 2
       region_name:
         type: string
+        description: "Region name for the project"
+        title: "Region name"
+        order: 3
