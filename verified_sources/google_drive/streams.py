@@ -47,12 +47,12 @@ class GoogleDriveStream(Stream):
         """
         self._config = config
         self.auth = BaseOauth2Authenticator(
-            client_id=config.connection_specification.get('client_id'),
-            client_secret=config.connection_specification.get('client_secret'),
+            client_id=config.connection_specification.client_id,
+            client_secret=config.connection_specification.client_secret,
             token_refresh_endpoint='https://oauth2.googleapis.com/token',
             scopes=self.__required_scopes__
         )
-        self.auth.refresh_token = config.connection_specification.get('refresh_token')
+        self.auth.refresh_token = config.connection_specification.refresh_token
 
     def read_records(
         self,

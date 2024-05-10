@@ -19,6 +19,8 @@ properties:
     type: string
     default: 'www.example.com'
   connection_specification:
+    allOf:
+    - "$ref": "https://raw.githubusercontent.com/dat-labs/dat-core/main/dat_core/specs/ConnectorSpecification.yml#/definitions/connection_specification"
     description: ConnectorDefinition specific blob. Must be a valid JSON string.
     type: object
     required:
