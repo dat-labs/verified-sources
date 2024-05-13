@@ -15,8 +15,12 @@ properties:
           namespace:
             description: "namespace the data is associated with"
             type: string
+            title: "Namespace"
+            order: 0
           dir_uris:
             type: array
+            title: "Directory URIs"
+            order: 1
             items:
               type: string
           
@@ -32,7 +36,11 @@ properties:
           namespace:
             description: "namespace the data is associated with"
             type: string
+            title: "Namespace"
+            order: 0
           dir_uris:
             type: array
+            title: "Directory URIs"
+            order: 1
             items:
               type: string
