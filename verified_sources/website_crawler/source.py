@@ -37,8 +37,6 @@ class WebsiteCrawler(SourceBase):
         check_connection: Checks the connection to a website URL.
         streams: Generates URLCrawler streams based on the configuration.
     """
-    _spec_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'specs.yml')
-    _catalog_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'catalog.yml')
 
     def check_connection(self, config: WebsiteCrawlerSpecification) -> Tuple[bool, Any | None]:
         """
