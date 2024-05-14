@@ -12,11 +12,6 @@ from verified_sources.amazon_s3.specs import AmazonS3Specification
 
 class AmazonS3(SourceBase):
 
-    _spec_file = os.path.join(os.path.dirname(
-        os.path.abspath(__file__)), 'specs.yml')
-    _catalog_file = os.path.join(os.path.dirname(
-        os.path.abspath(__file__)), 'catalog.yml')
-
     def check_connection(self, config: AmazonS3Specification) -> Tuple[bool, Optional[Any]]:
         connected, message = False, 'Connection failed'
         try:
