@@ -33,4 +33,4 @@ class TxtStream(DatDocumentStream):
 
 
 class GoogleDriveCatalog(DatCatalog):
-    streams: Optional[List[Union[PdfStream, TxtStream]]] = None
+    document_streams: Optional[List[Union[PdfStream, TxtStream]]] = None

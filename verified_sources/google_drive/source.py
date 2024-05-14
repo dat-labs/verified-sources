@@ -1,6 +1,7 @@
 import os
 import requests
-from typing import List
+from typing import List, Dict
+import jsonref
 from dat_core.connectors.sources.stream import Stream
 from dat_core.connectors.sources.base import SourceBase
 from dat_core.auth.oauth2_authenticator import BaseOauth2Authenticator
@@ -9,6 +10,7 @@ from dat_core.pydantic_models import (
 )
 from verified_sources.google_drive.streams import GDrivePdfStream, GDriveTxtStream
 from verified_sources.google_drive.specs import GoogleDriveSpecification
+from verified_sources.google_drive.catalog import GoogleDriveCatalog
 
 class GoogleDrive(SourceBase):
     """
@@ -86,6 +88,20 @@ class GoogleDrive(SourceBase):
             GDrivePdfStream(config),
             GDriveTxtStream(config)
         ]
+    
+    def discover(self, config: GoogleDriveSpecification) -> Dict:
+        """
+        Should publish a connectors capabilities i.e it's catalog
+
+        Args:
+            config (GoogleDriveSpecification): The user-provided configuration as specified by
+              the source's spec.
+
+        Returns:
+            DatCatalog: Supported streams in the connector
+        """
+        _catalog = GoogleDriveCatalog.model_json_schema()
+        return jsonref.loads(jsonref.dumps(_catalog))
 
 
         

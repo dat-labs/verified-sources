@@ -19,5 +19,5 @@ class Crawler(DatDocumentStream):
     )
 
 
-class WebCrawlerCatalog(BaseModel):
+class WebsiteCrawlerCatalog(BaseModel):
     document_streams: List[Crawler]

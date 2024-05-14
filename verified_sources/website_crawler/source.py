@@ -15,19 +15,20 @@ Dependencies:
     - verified_sources.website_crawler.streams.URLCrawler: A URLCrawler class from the verified_sources.website_crawler.streams module.
 """
 import os
-from dat_core.connectors.sources.stream import Stream
 import requests
+import jsonref
 from typing import Any, List, Mapping, Tuple
+from dat_core.connectors.sources.stream import Stream
 from dat_core.connectors.sources.base import SourceBase
 from dat_core.pydantic_models import (
-    ConnectorSpecification,
     DatMessage,
     DatLogMessage,
     Type,
     Level
 )
+from verified_sources.website_crawler.specs import WebsiteCrawlerSpecification
 from verified_sources.website_crawler.streams import URLCrawler
-
+from verified_sources.website_crawler.catalog import WebsiteCrawlerCatalog
 class WebsiteCrawler(SourceBase):
     """
     WebsiteCrawler class for crawling websites and creating URLCrawler streams.
@@ -39,12 +40,12 @@ class WebsiteCrawler(SourceBase):
     _spec_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'specs.yml')
     _catalog_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'catalog.yml')
 
-    def check_connection(self, config: ConnectorSpecification) -> Tuple[bool, Any | None]:
+    def check_connection(self, config: WebsiteCrawlerSpecification) -> Tuple[bool, Any | None]:
         """
         Checks the connection to a website URL.
 
         Parameters:
-            config (ConnectorSpecification): The connector specification object.
+            config (WebsiteCrawlerSpecification): The connector specification object.
 
         Returns:
             Tuple[bool, Any | None]: A tuple indicating the connection status (True for success, False for failure) and an optional message.
@@ -79,13 +80,27 @@ class WebsiteCrawler(SourceBase):
         return [
             URLCrawler(config)
         ]
+    
+    def discover(self, config: AmazonS3Specification) -> Dict:
+        """
+        Should publish a connectors capabilities i.e it's catalog
+
+        Args:
+            config (AmazonS3Specification): The user-provided configuration as specified by
+              the source's spec.
+
+        Returns:
+            DatCatalog: Supported streams in the connector
+        """
+        _catalog = WebsiteCrawlerCatalog.model_json_schema()
+        return jsonref.loads(jsonref.dumps(_catalog))
 
 
 if __name__ == '__main__':
     from dat_core.pydantic_models import ReadSyncMode, WriteSyncMode, Advanced, SplitByHtmlHeaderSettings, SplitByHtmlHeaderExtraConfig
     from verified_sources.website_crawler.specs import WebsiteCrawlerSpecification
     from verified_sources.website_crawler.catalog import (
-        WebCrawlerCatalog, Crawler
+        WebsiteCrawlerCatalog, Crawler
         )
 
     _specs = WebsiteCrawlerSpecification(
@@ -100,6 +115,6 @@ if __name__ == '__main__':
             splitter_settings=SplitByHtmlHeaderSettings(config=SplitByHtmlHeaderExtraConfig()),
             )
     )
-    _catalog = WebCrawlerCatalog(document_streams=[_stream,])
+    _catalog = WebsiteCrawlerCatalog(document_streams=[_stream,])
     for msg in website_crawler.read(_specs, _catalog):
         print(msg.model_dump_json())

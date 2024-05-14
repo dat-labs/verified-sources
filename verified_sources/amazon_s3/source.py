@@ -1,13 +1,15 @@
 import os
 import json
-from typing import (Any, Optional, Tuple, Mapping, List)
+from typing import (Any, Optional, Tuple, Mapping, List, Dict)
 import boto3
+import jsonref
 from dat_core.pydantic_models import DatMessage, DatLogMessage, Type, Level
 from dat_core.connectors.sources.base import SourceBase
 from dat_core.connectors.sources.stream import Stream
 from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
 from verified_sources.amazon_s3.streams import S3TxtStream, S3PdfStream
 from verified_sources.amazon_s3.specs import AmazonS3Specification
+from verified_sources.amazon_s3.catalog import AmazonS3Catalog
 
 
 class AmazonS3(SourceBase):
@@ -56,3 +58,17 @@ class AmazonS3(SourceBase):
             S3TxtStream(config),
             S3PdfStream(config)
         ]
+    
+    def discover(self, config: AmazonS3Specification) -> Dict:
+        """
+        Should publish a connectors capabilities i.e it's catalog
+
+        Args:
+            config (AmazonS3Specification): The user-provided configuration as specified by
+              the source's spec.
+
+        Returns:
+            DatCatalog: Supported streams in the connector
+        """
+        _catalog = AmazonS3Catalog.model_json_schema()
+        return jsonref.loads(jsonref.dumps(_catalog))

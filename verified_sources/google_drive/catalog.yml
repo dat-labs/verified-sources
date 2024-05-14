@@ -1,6 +1,6 @@
 type: object
 properties:
-  streams:
+  document_streams:
     type: array
     items:
       - type: object
