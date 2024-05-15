@@ -14,6 +14,9 @@ from verified_sources.amazon_s3.catalog import AmazonS3Catalog
 
 class AmazonS3(SourceBase):
 
+    _catalog_class = AmazonS3Catalog
+    _spec_class = AmazonS3Specification
+
     def check_connection(self, config: AmazonS3Specification) -> Tuple[bool, Optional[Any]]:
         connected, message = False, 'Connection failed'
         try:
@@ -53,17 +56,3 @@ class AmazonS3(SourceBase):
             S3TxtStream(config),
             S3PdfStream(config)
         ]
-    
-    def discover(self, config: AmazonS3Specification) -> Dict:
-        """
-        Should publish a connectors capabilities i.e it's catalog
-
-        Args:
-            config (AmazonS3Specification): The user-provided configuration as specified by
-              the source's spec.
-
-        Returns:
-            DatCatalog: Supported streams in the connector
-        """
-        _catalog = AmazonS3Catalog.model_json_schema()
-        return jsonref.loads(jsonref.dumps(_catalog))

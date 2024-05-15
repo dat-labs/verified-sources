@@ -16,6 +16,8 @@ class GoogleDrive(SourceBase):
     """
     GoogleDrive as a source
     """
+    _catalog_class = GoogleDriveCatalog
+    _spec_class = GoogleDriveSpecification
 
     def check_connection(self, config: GoogleDriveSpecification) -> DatConnectionStatus:
         """Checks the connection to Google Drive using the provided configuration.
@@ -86,22 +88,6 @@ class GoogleDrive(SourceBase):
             GDrivePdfStream(config),
             GDriveTxtStream(config)
         ]
-    
-    def discover(self, config: GoogleDriveSpecification) -> Dict:
-        """
-        Should publish a connectors capabilities i.e it's catalog
-
-        Args:
-            config (GoogleDriveSpecification): The user-provided configuration as specified by
-              the source's spec.
-
-        Returns:
-            DatCatalog: Supported streams in the connector
-        """
-        _catalog = GoogleDriveCatalog.model_json_schema()
-        return jsonref.loads(jsonref.dumps(_catalog))
-
-
         
 if __name__ == '__main__':
     import os

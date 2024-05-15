@@ -37,6 +37,8 @@ class WebsiteCrawler(SourceBase):
         check_connection: Checks the connection to a website URL.
         streams: Generates URLCrawler streams based on the configuration.
     """
+    _catalog_class = WebsiteCrawlerCatalog
+    _spec_class = WebsiteCrawlerSpecification
 
     def check_connection(self, config: WebsiteCrawlerSpecification) -> Tuple[bool, Any | None]:
         """
@@ -78,21 +80,6 @@ class WebsiteCrawler(SourceBase):
         return [
             URLCrawler(config)
         ]
-    
-    def discover(self, config: AmazonS3Specification) -> Dict:
-        """
-        Should publish a connectors capabilities i.e it's catalog
-
-        Args:
-            config (AmazonS3Specification): The user-provided configuration as specified by
-              the source's spec.
-
-        Returns:
-            DatCatalog: Supported streams in the connector
-        """
-        _catalog = WebsiteCrawlerCatalog.model_json_schema()
-        return jsonref.loads(jsonref.dumps(_catalog))
-
 
 if __name__ == '__main__':
     from dat_core.pydantic_models import ReadSyncMode, WriteSyncMode, Advanced, SplitByHtmlHeaderSettings, SplitByHtmlHeaderExtraConfig
