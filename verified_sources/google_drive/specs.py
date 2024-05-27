@@ -27,8 +27,8 @@ class GoogleDriveSpecification(BaseModel):
     class Config:
         extra = 'allow'
 
-    name: str = Literal['GoogleDrive']
-    module_name: str = Literal['google_drive']
+    name: Literal['GoogleDrive']
+    module_name: Literal['google_drive']
     protocol_version: Optional[Any] = None
     documentation_url: Optional[str] = (
         'https://developers.google.com/drive/api/guides/about-sdk'

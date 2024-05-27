@@ -32,8 +32,8 @@ class AmazonS3Specification(BaseModel):
         extra = 'allow'
 
     documentation_url: Optional[AnyUrl] = None
-    name: str = Literal['AmazonS3']
-    module_name: str = Literal['amazon_s3']
+    name: Literal['AmazonS3']
+    module_name: Literal['amazon_s3']
     connection_specification: ConnectionSpecification = Field(
         ...,
         description='ConnectorDefinition specific blob. Must be a valid JSON string.',

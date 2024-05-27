@@ -11,12 +11,12 @@ from dat_core.pydantic_models import DatDocumentStream, DatCatalog
 
 
 class TxtDatStream(DatDocumentStream):
-    name: str = Literal['txt']
+    name: Literal['txt']
     dir_prefix: str
 
 
 class PdfDatStream(DatDocumentStream):
-    name: str = Literal['pdf']
+    name: Literal['pdf']
     dir_prefix: str
 
 

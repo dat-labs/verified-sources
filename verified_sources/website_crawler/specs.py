@@ -19,8 +19,8 @@ class WebsiteCrawlerSpecification(BaseModel):
         extra = 'allow'
 
     documentation_url: Optional[AnyUrl] = None
-    name: str = Literal['Website']
-    module_name: str = Literal['website_crawler']
+    name: Literal['Website']
+    module_name: Literal['website_crawler']
     connection_specification: ConnectionSpecificationModel = Field(
         ...,
         description='ConnectorDefinition specific blob. Must be a valid JSON string.',
