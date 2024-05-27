@@ -4,14 +4,14 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Literal
 
 from pydantic import Field
 from dat_core.pydantic_models import DatDocumentStream, DatCatalog, Advanced
 
 
 class PdfStream(DatDocumentStream):
-    name: str = Field('pdf', const=True)
+    name: str = Literal['pdf']
     namespace: Optional[str] = Field(
         None, description='namespace the data is associated with'
     )
@@ -22,7 +22,7 @@ class PdfStream(DatDocumentStream):
 
 
 class TxtStream(DatDocumentStream):
-    name: str = Field('txt', const=True)
+    name: str = Literal['txt']
     namespace: Optional[str] = Field(
         None, description='namespace the data is associated with'
     )

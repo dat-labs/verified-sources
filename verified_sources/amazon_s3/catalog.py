@@ -4,19 +4,19 @@
 
 from __future__ import annotations
 
-from typing import List, Union
+from typing import List, Union, Literal
 from pydantic import Field
 
 from dat_core.pydantic_models import DatDocumentStream, DatCatalog
 
 
 class TxtDatStream(DatDocumentStream):
-    name: str = Field('txt', const=True)
+    name: str = Literal['txt']
     dir_prefix: str
 
 
 class PdfDatStream(DatDocumentStream):
-    name: str = Field('pdf', const=True)
+    name: str = Literal['pdf']
     dir_prefix: str
 
 

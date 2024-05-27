@@ -4,13 +4,13 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List, Optional, Literal
 
 from pydantic import BaseModel, Field
 from dat_core.pydantic_models import DatDocumentStream, Advanced
 
 class Crawler(DatDocumentStream):
-    name: str = Field('url_crawler', const=True)
+    name: str = Literal['url_crawler']
     namespace: Optional[str] = Field(
         None, description='namespace the data is associated with'
     )

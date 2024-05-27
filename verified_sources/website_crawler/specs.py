@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Literal
 
 from pydantic import AnyUrl, BaseModel, Field
 from dat_core.pydantic_models import ConnectionSpecification
@@ -19,8 +19,8 @@ class WebsiteCrawlerSpecification(BaseModel):
         extra = 'allow'
 
     documentation_url: Optional[AnyUrl] = None
-    name: Optional[str] = 'Website Crawler'
-    module_name: Optional[str] = 'website_crawler'
+    name: str = Literal['Website']
+    module_name: str = Literal['website_crawler']
     connection_specification: ConnectionSpecificationModel = Field(
         ...,
         description='ConnectorDefinition specific blob. Must be a valid JSON string.',

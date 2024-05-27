@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Literal
 
 from pydantic import AnyUrl, BaseModel, Field
 
@@ -32,16 +32,8 @@ class AmazonS3Specification(BaseModel):
         extra = 'allow'
 
     documentation_url: Optional[AnyUrl] = None
-    name: str = Field(
-        'AmazonS3',
-        const=True,
-        description='The name of the specific connector to which this ConnectorSpecification belongs.',
-    )
-    module_name: str = Field(
-        'amazon_s3',
-        const=True,
-        description='Name of the python module for this connector',
-    )
+    name: str = Literal['AmazonS3']
+    module_name: str = Literal['amazon_s3']
     connection_specification: ConnectionSpecification = Field(
         ...,
         description='ConnectorDefinition specific blob. Must be a valid JSON string.',
