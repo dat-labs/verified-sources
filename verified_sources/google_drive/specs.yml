@@ -7,10 +7,10 @@ additionalProperties: true
 properties:
   name:
     type: string
-    default: 'GoogleDrive'
+    const: 'GoogleDrive'
   module_name:
     type: string
-    default: 'google_drive'
+    const: 'google_drive'
   protocol_version: 1.0
   documentation_url:
     type: string

@@ -13,4 +13,4 @@ properties:
       properties:
         name:
           type: string
-          default: url_crawler
+          const: url_crawler

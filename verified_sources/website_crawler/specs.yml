@@ -11,10 +11,10 @@ properties:
     format: uri
   name:
     type: string
-    default: 'Website Crawler'
+    const: 'Website Crawler'
   module_name:
     type: string
-    default: 'website_crawler'
+    const: 'website_crawler'
   connection_specification:
     allOf:
     - "$ref": "https://raw.githubusercontent.com/dat-labs/dat-core/main/dat_core/specs/ConnectorSpecification.yml#/definitions/connection_specification"

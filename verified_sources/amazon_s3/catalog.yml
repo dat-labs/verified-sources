@@ -11,7 +11,7 @@ properties:
         properties:
           name:
             type: string
-            default: txt
+            const: txt
           dir_prefix:
             type: string
       - type: object
@@ -22,6 +22,6 @@ properties:
         properties:
           name:
             type: string
-            default: pdf
+            const: pdf
           dir_prefix:
             type: string
