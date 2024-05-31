@@ -11,7 +11,15 @@ from dat_core.pydantic_models import DatDocumentStream, DatCatalog, Advanced
 
 
 class PdfStream(DatDocumentStream):
-    name: Literal['pdf']
+    name: Optional[str] = Field(
+        'pdf',
+        description='The name of the document stream.',
+        json_schema_extra={
+            'ui-opts': {
+                'hidden': True,
+            }
+        }
+    )
     namespace: Optional[str] = Field(
         None, description='namespace the data is associated with'
     )
@@ -22,7 +30,15 @@ class PdfStream(DatDocumentStream):
 
 
 class TxtStream(DatDocumentStream):
-    name: Literal['txt']
+    name: Optional[str] = Field(
+        'txt',
+        description='The name of the document stream.',
+        json_schema_extra={
+            'ui-opts': {
+                'hidden': True,
+            }
+        }
+    )
     namespace: Optional[str] = Field(
         None, description='namespace the data is associated with'
     )
