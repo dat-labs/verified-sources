@@ -50,7 +50,7 @@ class GoogleDrive(SourceBase):
                     type=Type.LOG,
                     log=DatLogMessage(
                         level=Level.DEBUG,
-                        message=resp.json()
+                        message=resp.text
                     )
                 )
                 print(_log_msg.model_dump_json(), flush=True)
