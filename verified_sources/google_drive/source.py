@@ -6,7 +6,7 @@ from dat_core.connectors.sources.stream import Stream
 from dat_core.connectors.sources.base import SourceBase
 from dat_core.auth.oauth2_authenticator import BaseOauth2Authenticator
 from dat_core.pydantic_models import (
-    ConnectorSpecification, DatConnectionStatus, DatMessage, DatLogMessage, Level
+    ConnectorSpecification, DatConnectionStatus, DatMessage, DatLogMessage, Level, Type
 )
 from verified_sources.google_drive.streams import GDrivePdfStream, GDriveTxtStream
 from verified_sources.google_drive.specs import GoogleDriveSpecification
