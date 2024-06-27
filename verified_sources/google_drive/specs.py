@@ -31,7 +31,7 @@ class GoogleDriveSpecification(BaseModel):
     module_name: Literal['google_drive']
     protocol_version: Optional[Any] = None
     documentation_url: Optional[str] = (
-        'https://developers.google.com/drive/api/guides/about-sdk'
+        'https://datlabs.gitbook.io/datlabs/integrations/sources/google-drive'
     )
     changelog_url: Optional[str] = 'www.example.com'
     connection_specification: ConnectionSpecificationModel = Field(
