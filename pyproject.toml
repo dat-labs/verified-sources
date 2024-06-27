@@ -8,7 +8,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-dat-core = {git = "https://github.com/dat-labs/dat-core", rev = "main", develop = true}
+dat-cli = {git = "https://github.com/dat-labs/dat-cli", rev = "main"}
 beautifulsoup4 = "^4.12.3"
 boto3 = "*"
 
