@@ -10,7 +10,15 @@ from pydantic import BaseModel, Field
 from dat_core.pydantic_models import DatDocumentStream, Advanced
 
 class Crawler(DatDocumentStream):
-    name: Literal['url_crawler']
+    name: Optional[str] = Field(
+        'url_crawler',
+        description='The name of the document stream.',
+        json_schema_extra={
+            'ui-opts': {
+                'hidden': True,
+            }
+        }
+    )
     namespace: Optional[str] = Field(
         None, description='namespace the data is associated with'
     )
