@@ -22,6 +22,9 @@ from dat_core.connectors.sources.stream import Stream
 from dat_core.pydantic_models import DatCatalog, DatDocumentStream, DatMessage, StreamState
 from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
 from verified_sources.website_crawler.specs import WebsiteCrawlerSpecification
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 
 class URLCrawler(Stream):
     """
@@ -65,14 +68,22 @@ class URLCrawler(Stream):
             Generator[DatMessage, Any, Any]: A generator yielding DatMessage objects.
         """
         # Depends on the type of loader you are using
+        chrome_options = Options()
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        driver = webdriver.Chrome(options=chrome_options)
+
         _loader_config = {
-            'web_path': self._config.connection_specification.site_url
+            'prefix': self._config.connection_specification.site_url,
+            'driver': driver
         }
         doc_splitter = doc_splitter_factory.create(
-            loader_key=DocLoaderType.WEB_CRAWLER,
-            splitter_key=configured_stream.advanced.splitter_settings.strategy,
-            loader_config=_loader_config,
-            splitter_config=configured_stream.advanced.splitter_settings.config
+            loader_key=DocLoaderType.WHOLE_SITE_READER,
+            splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY.value,
+            loader_config=_loader_config
+            # splitter_key=configured_stream.advanced.splitter_settings.strategy,
+            # splitter_config=configured_stream.advanced.splitter_settings.config
             )
         for chunk in doc_splitter.load_and_chunk():
             try:
