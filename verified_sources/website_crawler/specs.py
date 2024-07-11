@@ -19,7 +19,7 @@ class WebsiteCrawlerSpecification(BaseModel):
         extra = 'allow'
 
     documentation_url: Optional[AnyUrl] = None
-    name: Literal['Website']
+    name: Literal['WebsiteCrawler']
     module_name: Literal['website_crawler']
     connection_specification: ConnectionSpecificationModel = Field(
         ...,
