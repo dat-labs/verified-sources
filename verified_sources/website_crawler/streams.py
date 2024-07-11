@@ -78,6 +78,9 @@ class URLCrawler(Stream):
             'prefix': self._config.connection_specification.site_url,
             'driver': driver
         }
+        _load_kwargs = {
+            'base_url': self._config.connection_specification.site_url
+        }
         doc_splitter = doc_splitter_factory.create(
             loader_key=DocLoaderType.WHOLE_SITE_READER,
             splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY.value,
@@ -85,7 +88,7 @@ class URLCrawler(Stream):
             # splitter_key=configured_stream.advanced.splitter_settings.strategy,
             # splitter_config=configured_stream.advanced.splitter_settings.config
             )
-        for chunk in doc_splitter.load_and_chunk():
+        for chunk in doc_splitter.load_and_chunk(**_load_kwargs):
             try:
                 # Sometimes load_and_chunk return Document object, sometimes it's string
                 _doc_chunk = chunk.page_content
