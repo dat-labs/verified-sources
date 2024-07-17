@@ -23,6 +23,8 @@ class PostgresStream(Stream):
     """
 
     # _name = 'public.actors' #Leaving this as is; we are setting it dynamically in the connector
+    _schema = ""
+    _table_name = ""
 
     def __init__(self, config: PostgresSpecification) -> None:
         """
@@ -56,15 +58,17 @@ class PostgresStream(Stream):
         Yields:
             Generator[DatMessage, Any, Any]: A generator yielding DatMessage objects.
         """
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         cursor = self.connection.cursor()
         cursor_field = getattr(configured_stream, 'cursor_field', None)
         # import pdb;pdb.set_trace()
         if cursor_field and cursor_value is not None:
-            query = f"SELECT * FROM {configured_stream.name} WHERE {cursor_field} > %s ORDER BY {cursor_field} ASC"
+            query = f"SELECT * FROM {self._schema}.{self._table_name} WHERE {cursor_field} > %s ORDER BY {cursor_field} ASC"
+            print("Query:", query)
             cursor.execute(query, (cursor_value,))
         else:
-            query = f"SELECT * FROM {configured_stream.name}"
+            query = f"SELECT * FROM {self._schema}.{self._table_name}"
+            print("Query:", query)
             cursor.execute(query)
 
         records = cursor.fetchall()

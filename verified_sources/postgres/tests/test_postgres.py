@@ -1,8 +1,8 @@
 from verified_sources.postgres.source import Postgres
-from verified_sources.postgres.catalog import PostgresCatalog
 from verified_sources.postgres.specs import PostgresSpecification
+from verified_sources.postgres.catalog import PostgresCatalog
 from dat_core.pydantic_models import (
-    DatConnectionStatus, DatDocumentStream,
+    DatConnectionStatus,
     DatMessage, StreamState
 )
 
@@ -29,12 +29,15 @@ def test_discover(valid_connection_object):
     )
     # Check if the result is a dictionary
     assert isinstance(_d, dict)
-    
+    print(f"Discovered: {_d}")
+    with open('discovered_postgres.json', 'w') as f:
+        import json
+        f.write(json.dumps(_d, indent=1))
     assert isinstance(_d['properties']['document_streams']['items']['anyOf'], list)
     assert isinstance(_d['properties']['document_streams']['items']['anyOf'][0], dict)
     assert 'properties' in _d['properties']['document_streams']['items']['anyOf'][0]
     assert 'name' in _d['properties']['document_streams']['items']['anyOf'][0]['properties']
-    assert 'public' in _d['properties']['document_streams']['items']['anyOf'][0]['properties']['name']['default']
+    assert False
 
 
 def test_read(valid_connection_object, valid_catalog_object):
@@ -57,7 +60,6 @@ def test_read(valid_connection_object, valid_catalog_object):
             doc_chunk = record.record.data.document_chunk
             assert isinstance(doc_chunk, str)
             dat_document_entity = record.record.data.metadata.dat_document_entity
-            assert 'public' in dat_document_entity
     assert cnt_records == 7
 
 

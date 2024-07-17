@@ -4,8 +4,12 @@
 
 from __future__ import annotations
 
-from dat_core.pydantic_models import DatDocumentStream
+from typing import List, Optional, Union
+from dat_core.pydantic_models import DatDocumentStream, DatCatalog
 
 
 class PostgresTableStream(DatDocumentStream):
     pass
+
+class PostgresCatalog(DatCatalog):
+    document_streams: Optional[List[Union[PostgresTableStream]]] = None

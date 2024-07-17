@@ -1,6 +1,10 @@
-from typing import (Any, Dict, Optional, Tuple, Mapping, List)
+from typing import (
+    Any, Dict, Optional,
+    Tuple, Mapping, List,
+    Union
+)
 from dat_core.pydantic_models import (
-    ConnectorSpecification
+    ConnectorSpecification, SchemaField
 )
 from pydantic import Field, create_model
 import psycopg
@@ -67,7 +71,6 @@ class Postgres(SourceBase):
                 schema_dict[f"{table_schema}.{table_name}"] = {
                     "columns": [{"name": col[0], "type": col[1]} for col in columns]
                 }
-
             connection.close()
             print("Schema dict:", schema_dict)
             return schema_dict
@@ -91,8 +94,8 @@ class Postgres(SourceBase):
                 description='The name of the document stream.',
                 json_schema_extra={'ui-opts': {'hidden': True}}
             )),
-            json_schema=(dict, Field(
-                stream.json_schema,
+            json_schema=(Optional[Union[tuple(stream.json_schema)]], Field(
+                None,
                 description='The JSON schema for the document stream.',
                 json_schema_extra={'ui-opts': {'hidden': True}}
             )),
@@ -139,41 +142,60 @@ class Postgres(SourceBase):
         # Default to string if type not found
         return type_mapping.get(column_type, 'string')
 
-    def create_table_info(self, table_name: str, columns: List[Dict[str, str]]):
-        table_info = {}
-        properties = {}
-
+    def create_table_info(self, columns: List[Dict[str, Any]]) -> List[SchemaField]:
+        schema_fields = []
         for column in columns['columns']:
             column_name = column['name']
             column_type = column['type']
             json_schema_type = self.map_column_type_to_json_schema_type(
                 column_type)
 
-            properties[column_name] = {
-                'type': json_schema_type
-            }
+            schema_fields.append(
+                create_model(
+                    column_name,
+                    name=(str, Field(
+                        column_name,
+                        description='The name of the document stream.',
+                        json_schema_extra={'ui-opts': {'hidden': True}}
+                    )),
+                    data_type=(str, Field(
+                        json_schema_type,
+                        description='The data type of the column.',
+                        json_schema_extra={'ui-opts': {'hidden': True}}
+                    )),
+                    size=(int, Field(
+                        None,
+                        description='The size of the column.',
+                        json_schema_extra={'ui-opts': {'hidden': True}}
+                    )),
+                    __base__=SchemaField
 
-        table_info[table_name] = {
-            'type': 'object',
-            'properties': properties
-        }
+                )
+            )
 
-        return table_info
+        return schema_fields
 
     def streams(self, config: ConnectorSpecification) -> List[Stream]:
         tables = self._get_tables(config)
         streams = []
 
-        for index, (table_name, cols) in enumerate(tables.items(), start=1):
+        for index, (schema_table, cols) in enumerate(tables.items(), start=1):
             stream_name = f"PostgresStream{index}"
             StreamClass = type(
                 stream_name,
                 (PostgresStream,),
                 {}
             )
+            _schema_table = schema_table.split('.')
+            table_name = _schema_table[-1]
+            schema = _schema_table[0]
+
             StreamClass.name = table_name
+            StreamClass._schema = schema
+            StreamClass._table_name = table_name
             StreamClass.json_schema = self.create_table_info(
-                table_name=table_name, columns=cols)
+                columns=cols
+            )
             stream_instance = StreamClass(config=config)
 
             streams.append(stream_instance)
