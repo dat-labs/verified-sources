@@ -30,6 +30,7 @@ properties:
         title: Port
         description: Port of the Postgres server
         type: integer
+        default: 5432
         order: 1
       dbname:
         title: Database Name
@@ -46,8 +47,9 @@ properties:
         description: Password to connect to the database
         type: string
         order: 4
-      schema:
-        title: Schema
+      schemas:
+        title: Schemas
         description: List of schema to sync tables from
         type: string
         order: 5
+        default: ["public"]

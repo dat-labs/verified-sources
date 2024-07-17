@@ -4,15 +4,8 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
-
-from dat_core.pydantic_models import DatDocumentStream, DatCatalog
+from dat_core.pydantic_models import DatDocumentStream
 
 
-class PostgresStream0(DatDocumentStream):
-    name: Optional[str] = 'postgres_stream_0'
-    property_0: str
-
-
-class PostgresCatalog(DatCatalog):
-    streams: Optional[List[PostgresStream0]] = None
+class PostgresTableStream(DatDocumentStream):
+    pass
