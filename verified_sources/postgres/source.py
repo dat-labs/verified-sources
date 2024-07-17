@@ -102,35 +102,6 @@ class Postgres(SourceBase):
             __base__=PostgresTableStream
         )
 
-    # def discover(self, config: ConnectorSpecification) -> List[Dict]:
-    #     tables = self._get_tables(config)
-    #     streams = []
-
-    #     for index, (table_name, cols) in enumerate(tables.items(), start=1):
-    #         StreamModel = create_model(
-    #             f"PostgresTable{index}",
-    #             name=(str, Field(
-    #                 table_name,
-    #                 description='The name of the document stream.',
-    #                 json_schema_extra={'ui-opts': {'hidden': True}}
-    #             )),
-    #             json_schema=(dict, Field(
-    #                 self.create_table_info(table_name=table_name, columns=cols),
-    #                 description='The JSON schema for the document stream.',
-    #                 json_schema_extra={'ui-opts': {'hidden': True}}
-    #             )),
-    #             __base__=PostgresTableStream
-    #         )
-    #         streams.append(StreamModel)
-    #     DocumentStreamsUnion = Union[tuple(streams)]
-    #     PostgresCatalogModel = create_model(
-    #         'PostgresCatalog',
-    #         document_streams=(List[DocumentStreamsUnion], ...)
-    #     )
-
-    #     self._catalog_class = PostgresCatalogModel
-    #     return super().discover(config)
-
     def map_column_type_to_json_schema_type(self, column_type):
         type_mapping = {
             'character varying': 'string',

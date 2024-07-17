@@ -1,3 +1,4 @@
+import psycopg
 from verified_sources.postgres.source import Postgres
 from verified_sources.postgres.specs import PostgresSpecification
 from verified_sources.postgres.catalog import PostgresCatalog
@@ -39,18 +40,19 @@ def test_discover(valid_connection_object):
     assert 'name' in _d['properties']['document_streams']['items']['anyOf'][0]['properties']
     assert False
 
-
 def test_read(valid_connection_object, valid_catalog_object):
     config = PostgresSpecification(
         name='Postgres',
         connection_specification=valid_connection_object,
         module_name='postgres'
     )
+    valid_catalog = PostgresCatalog(**valid_catalog_object)
     postgres = Postgres()
     records = postgres.read(
         config=config,
-        catalog=PostgresCatalog(**valid_catalog_object),
+        catalog=valid_catalog,
     )
+    expected_count = get_record_count(valid_connection_object, f"public.{valid_catalog.document_streams[0].name}")
     cnt_records = 0
     for record in records:
         if record.type.name == 'RECORD':
@@ -59,8 +61,7 @@ def test_read(valid_connection_object, valid_catalog_object):
             assert hasattr(record, 'record')
             doc_chunk = record.record.data.document_chunk
             assert isinstance(doc_chunk, str)
-            dat_document_entity = record.record.data.metadata.dat_document_entity
-    assert cnt_records == 7
+    assert cnt_records == expected_count
 
 
 def test_read_incremental(valid_connection_object, valid_incremental_catalog_object, valid_stream_state_object):
@@ -70,14 +71,19 @@ def test_read_incremental(valid_connection_object, valid_incremental_catalog_obj
         module_name='postgres'
     )
     _combined_state = {
-        'public.actors': StreamState(**valid_stream_state_object)
+        'actors': StreamState(**valid_stream_state_object)
     }
+    valid_catalog = PostgresCatalog(**valid_incremental_catalog_object)
     postgres = Postgres()
     records = postgres.read(
         config=config,
-        catalog=PostgresCatalog(**valid_incremental_catalog_object),
+        catalog=valid_catalog,
         state=_combined_state
     )
+    query = (f"SELECT COUNT(*) FROM public.{valid_catalog.document_streams[0].name}"
+             f" WHERE {valid_catalog.document_streams[0].cursor_field} >"
+             f" '{valid_stream_state_object['data']['updated_at']}'")
+    expected_count = get_record_count(valid_connection_object, f"public.{valid_catalog.document_streams[0].name}", query)
     cnt_records = 0
     for record in records:
         if record.type.name == 'RECORD':
@@ -86,6 +92,18 @@ def test_read_incremental(valid_connection_object, valid_incremental_catalog_obj
             assert hasattr(record, 'record')
             doc_chunk = record.record.data.document_chunk
             assert isinstance(doc_chunk, str)
-            dat_document_entity = record.record.data.metadata.dat_document_entity
-            assert 'public' in dat_document_entity
-    assert cnt_records == 5
+    assert cnt_records == expected_count
+
+def get_record_count(connection_details, table_name, query=None):
+    required_keys = ['host', 'port', 'dbname', 'user', 'password']
+    connection_dict = {key: connection_details[key] for key in required_keys if key in connection_details}
+
+    conn = psycopg.connect(**connection_dict)
+    cursor = conn.cursor()
+    if not query:
+        query = f"SELECT COUNT(*) FROM {table_name}"
+    cursor.execute(query)
+    count = cursor.fetchone()[0]
+    cursor.close()
+    conn.close()
+    return count

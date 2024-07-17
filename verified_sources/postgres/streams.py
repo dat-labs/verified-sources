@@ -3,10 +3,8 @@ import psycopg
 from dat_core.connectors.sources.stream import Stream
 from dat_core.pydantic_models import (
     DatCatalog, DatDocumentStream,
-    DatMessage, StreamState,
-    ReadSyncMode
+    DatMessage
 )
-from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
 from verified_sources.postgres.specs import PostgresSpecification
 
 
@@ -58,17 +56,15 @@ class PostgresStream(Stream):
         Yields:
             Generator[DatMessage, Any, Any]: A generator yielding DatMessage objects.
         """
-        # import pdb;pdb.set_trace()
         cursor = self.connection.cursor()
         cursor_field = getattr(configured_stream, 'cursor_field', None)
-        # import pdb;pdb.set_trace()
         if cursor_field and cursor_value is not None:
-            query = f"SELECT * FROM {self._schema}.{self._table_name} WHERE {cursor_field} > %s ORDER BY {cursor_field} ASC"
-            print("Query:", query)
+            query = f"SELECT * FROM {self._schema}.{self._table_name} WHERE {cursor_field} > %s"
+            print(f"Query: {query}")
             cursor.execute(query, (cursor_value,))
         else:
             query = f"SELECT * FROM {self._schema}.{self._table_name}"
-            print("Query:", query)
+            print(f"Query: {query}")
             cursor.execute(query)
 
         records = cursor.fetchall()
@@ -76,7 +72,8 @@ class PostgresStream(Stream):
         for record in records:
             record_dict = dict(
                 zip([column.name for column in cursor.description], record))
-            record_str = ", ".join([f"{k}: {v}" for k, v in record_dict.items()])
+            record_str = ", ".join(
+                [f"{k}: {v}" for k, v in record_dict.items()])
 
             # Update cursor_value to the current record's cursor field value if cursor_field is present
             if cursor_field:
