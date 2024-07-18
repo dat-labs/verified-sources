@@ -25,7 +25,6 @@ from verified_sources.website_crawler.specs import WebsiteCrawlerSpecification
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
-from tempfile import mkdtemp
 
 class URLCrawler(Stream):
     """
