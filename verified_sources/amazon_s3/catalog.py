@@ -4,21 +4,54 @@
 
 from __future__ import annotations
 
-from typing import List, Union, Literal
+from typing import List, Union, Literal, Optional
 from pydantic import Field
 
-from dat_core.pydantic_models import DatDocumentStream, DatCatalog
-
-
-class TxtDatStream(DatDocumentStream):
-    name: Literal['txt']
-    dir_prefix: str
+from dat_core.pydantic_models import DatDocumentStream, DatCatalog, Advanced
 
 
 class PdfDatStream(DatDocumentStream):
-    name: Literal['pdf']
-    dir_prefix: str
+    name: Optional[str] = Field(
+        'pdf',
+        description='The name of the document stream.',
+        json_schema_extra={
+            'ui-opts': {
+                'hidden': True,
+            }
+        }
+    )
+    namespace: Optional[str] = Field(
+        None, description='namespace the data is associated with'
+    )
+    dir_prefix: List[str]
+    advanced: Optional[Advanced] = Field(
+        None, description='Additional optional settings'
+    )
+    advanced: Optional[Advanced] = Field(
+        None, description='Additional optional settings'
+    )
 
+
+class TxtDatStream(DatDocumentStream):
+    name: Optional[str] = Field(
+        'txt',
+        description='The name of the document stream.',
+        json_schema_extra={
+            'ui-opts': {
+                'hidden': True,
+            }
+        }
+    )
+    namespace: Optional[str] = Field(
+        None, description='namespace the data is associated with'
+    )
+    dir_prefix: List[str]
+    advanced: Optional[Advanced] = Field(
+        None, description='Additional optional settings'
+    )
+    advanced: Optional[Advanced] = Field(
+        None, description='Additional optional settings'
+    )
 
 class AmazonS3Catalog(DatCatalog):
     document_streams: List[Union[TxtDatStream, PdfDatStream]]

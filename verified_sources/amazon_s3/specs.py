@@ -7,12 +7,9 @@ from __future__ import annotations
 from typing import Optional, Literal
 
 from pydantic import AnyUrl, BaseModel, Field
+from dat_core.pydantic_models import ConnectionSpecification
 
-
-class ConnectionSpecification(BaseModel):
-    class Config:
-        extra = 'allow'
-
+class ConnectionSpecification(ConnectionSpecification):
     aws_access_key: str = Field(
         ..., description='AWS access key for the project', title='AWS access key'
     )
