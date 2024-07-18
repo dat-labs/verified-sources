@@ -1,10 +1,9 @@
 from typing import (
     Any, Dict, Optional,
     Tuple, Mapping, List,
-    Union
 )
 from dat_core.pydantic_models import (
-    ConnectorSpecification, SchemaField
+    ConnectorSpecification
 )
 from pydantic import Field, create_model
 import psycopg
@@ -20,6 +19,15 @@ class Postgres(SourceBase):
     _has_dynamic_streams = True
 
     def check_connection(self, config: PostgresSpecification) -> Tuple[bool, Optional[Any]]:
+        """
+        Checks the connection to Postgres using the provided configuration.
+
+        Args:
+            config (ConnectorSpecification): The configuration specifying the connection details.
+
+        Returns:
+            Tuple[bool, Optional[Any]]: A tuple containing the connection status and an error message
+        """
         try:
             connection = self.create_connection(config)
 
@@ -32,7 +40,16 @@ class Postgres(SourceBase):
         except Exception as e:
             return False, str(e)
 
-    def create_connection(self, config) -> Any:
+    def create_connection(self, config) -> psycopg.connection:
+        """
+        Creates a connection to the Postgres database.
+        
+        Args:
+            config (PostgresSpecification): The Postgres configuration object.
+        
+        Returns:
+            psycopg.connection: The connection object.
+        """
         return psycopg.connect(
             conninfo=(
                 f"host={config.connection_specification.host} port={config.connection_specification.port} "
@@ -42,6 +59,15 @@ class Postgres(SourceBase):
         )
 
     def _get_tables(self, config: PostgresSpecification) -> Mapping[str, Any]:
+        """
+        Get all tables and their schemas from the specified schemas.
+
+        Args:
+            config (PostgresSpecification): The Postgres configuration object.
+        
+        Returns:
+            Mapping[str, Any]: A dictionary containing the tables and their schemas.
+        """
         try:
             connection = self.create_connection(config)
             cursor = connection.cursor()
@@ -94,15 +120,24 @@ class Postgres(SourceBase):
                 description='The name of the document stream.',
                 json_schema_extra={'ui-opts': {'hidden': True}}
             )),
-            json_schema=(Optional[Union[tuple(stream.json_schema)]], Field(
-                None,
+            json_schema=(dict, Field(
+                stream.json_schema,
                 description='The JSON schema for the document stream.',
                 json_schema_extra={'ui-opts': {'hidden': True}}
             )),
             __base__=PostgresTableStream
         )
 
-    def map_column_type_to_json_schema_type(self, column_type):
+    def map_column_type_to_json_schema_type(self, column_type) -> str:
+        """
+        Maps the column type to a JSON schema type.
+
+        Args:
+            column_type (str): The column type.
+        
+        Returns:
+            str: The JSON schema type
+        """
         type_mapping = {
             'character varying': 'string',
             'timestamp without time zone': 'string',
@@ -113,40 +148,46 @@ class Postgres(SourceBase):
         # Default to string if type not found
         return type_mapping.get(column_type, 'string')
 
-    def create_table_info(self, columns: List[Dict[str, Any]]) -> List[SchemaField]:
-        schema_fields = []
+    def create_table_info(self, table_name: str, columns: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Creates the table info for the stream.
+
+        Args:
+            columns (List[Dict[str, Any]]): The columns of the table.
+        
+        Returns:
+            Dict[str, Any]: The table info.
+        """
+        table_info = {}
+        properties = {}
+
         for column in columns['columns']:
             column_name = column['name']
             column_type = column['type']
             json_schema_type = self.map_column_type_to_json_schema_type(
                 column_type)
 
-            schema_fields.append(
-                create_model(
-                    column_name,
-                    name=(str, Field(
-                        column_name,
-                        description='The name of the document stream.',
-                        json_schema_extra={'ui-opts': {'hidden': True}}
-                    )),
-                    data_type=(str, Field(
-                        json_schema_type,
-                        description='The data type of the column.',
-                        json_schema_extra={'ui-opts': {'hidden': True}}
-                    )),
-                    size=(int, Field(
-                        None,
-                        description='The size of the column.',
-                        json_schema_extra={'ui-opts': {'hidden': True}}
-                    )),
-                    __base__=SchemaField
+            properties[column_name] = {
+                'type': json_schema_type
+            }
 
-                )
-            )
+        table_info[table_name] = {
+            'type': 'object',
+            'properties': properties
+        }
 
-        return schema_fields
+        return table_info
 
     def streams(self, config: ConnectorSpecification) -> List[Stream]:
+        """
+        Dynamically creates streams based on the tables in the specified schemas.
+
+        Args:
+            config (ConnectorSpecification): The configuration specifying the connection details.
+
+        Returns:
+            List[Stream]: A list of streams.
+        """
         tables = self._get_tables(config)
         streams = []
 
@@ -165,7 +206,7 @@ class Postgres(SourceBase):
             StreamClass._schema = schema
             StreamClass._table_name = table_name
             StreamClass.json_schema = self.create_table_info(
-                columns=cols
+                table_name=table_name, columns=cols
             )
             stream_instance = StreamClass(config=config)
 

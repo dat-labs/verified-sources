@@ -38,7 +38,6 @@ def test_discover(valid_connection_object):
     assert isinstance(_d['properties']['document_streams']['items']['anyOf'][0], dict)
     assert 'properties' in _d['properties']['document_streams']['items']['anyOf'][0]
     assert 'name' in _d['properties']['document_streams']['items']['anyOf'][0]['properties']
-    assert False
 
 def test_read(valid_connection_object, valid_catalog_object):
     config = PostgresSpecification(

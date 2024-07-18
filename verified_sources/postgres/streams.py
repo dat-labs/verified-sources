@@ -59,7 +59,7 @@ class PostgresStream(Stream):
         cursor = self.connection.cursor()
         cursor_field = getattr(configured_stream, 'cursor_field', None)
         if cursor_field and cursor_value is not None:
-            query = f"SELECT * FROM {self._schema}.{self._table_name} WHERE {cursor_field} > %s"
+            query = f"SELECT * FROM {self._schema}.{self._table_name} WHERE {cursor_field} > %s order by {cursor_field} ASC"
             print(f"Query: {query}")
             cursor.execute(query, (cursor_value,))
         else:
@@ -76,13 +76,15 @@ class PostgresStream(Stream):
                 [f"{k}: {v}" for k, v in record_dict.items()])
 
             # Update cursor_value to the current record's cursor field value if cursor_field is present
+            extra_metadata = {}
             if cursor_field:
                 cursor_value = record_dict[cursor_field]
-
+                extra_metadata = {cursor_field: cursor_value}
             yield self.as_record_message(
                 configured_stream=configured_stream,
                 doc_chunk=record_str,
                 data_entity=f"{configured_stream.name}",
+                extra_metadata=extra_metadata,
             )
 
         cursor.close()
