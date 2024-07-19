@@ -1,0 +1,55 @@
+description: Specification of an actor (source/generator/destination)
+type: object
+required:
+  - connection_specification
+  - name
+  - module_name
+additionalProperties: true
+properties:
+  # General Properties (Common to all connectors)
+  documentation_url:
+    type: string
+    format: uri
+  name:
+    description: "The name of the specific connector to which this ConnectorSpecification belongs."
+    type: string
+  module_name:
+    description: "Name of the python module for this connector"
+    type: string
+  connection_specification:
+    description: ConnectorDefinition specific blob. Must be a valid JSON string.
+    type: object
+    additionalProperties: true
+    properties:
+      host:
+        title: Host
+        description: Hostname of the Postgres server
+        type: string
+        order: 0
+      port:
+        title: Port
+        description: Port of the Postgres server
+        type: integer
+        default: 5432
+        order: 1
+      dbname:
+        title: Database Name
+        description: Name of the database
+        type: string
+        order: 2
+      user:
+        title: User
+        description: Username to connect to the database
+        type: string
+        order: 3
+      password:
+        title: Password
+        description: Password to connect to the database
+        type: string
+        order: 4
+      schemas:
+        title: Schemas
+        description: List of schema to sync tables from
+        type: string
+        order: 5
+        default: ["public"]
