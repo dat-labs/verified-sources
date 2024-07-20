@@ -4,10 +4,10 @@
 
 from __future__ import annotations
 
-from typing import List, Union, Literal, Optional
+from typing import List, Union, Optional
 from pydantic import Field
 
-from dat_core.pydantic_models import DatDocumentStream, DatCatalog, Advanced
+from dat_core.pydantic_models import DatDocumentStream, DatCatalog
 
 
 class PdfDatStream(DatDocumentStream):
@@ -20,16 +20,7 @@ class PdfDatStream(DatDocumentStream):
             }
         }
     )
-    namespace: Optional[str] = Field(
-        None, description='namespace the data is associated with'
-    )
     dir_prefix: List[str]
-    advanced: Optional[Advanced] = Field(
-        None, description='Additional optional settings'
-    )
-    advanced: Optional[Advanced] = Field(
-        None, description='Additional optional settings'
-    )
 
 
 class TxtDatStream(DatDocumentStream):
@@ -42,16 +33,7 @@ class TxtDatStream(DatDocumentStream):
             }
         }
     )
-    namespace: Optional[str] = Field(
-        None, description='namespace the data is associated with'
-    )
     dir_prefix: List[str]
-    advanced: Optional[Advanced] = Field(
-        None, description='Additional optional settings'
-    )
-    advanced: Optional[Advanced] = Field(
-        None, description='Additional optional settings'
-    )
 
 class AmazonS3Catalog(DatCatalog):
     document_streams: List[Union[TxtDatStream, PdfDatStream]]
