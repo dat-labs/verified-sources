@@ -67,12 +67,11 @@ class URLCrawler(Stream):
         Yields:
             Generator[DatMessage, Any, Any]: A generator yielding DatMessage objects.
         """
-        # Depends on the type of loader you are using
-        chrome_options = Options()
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--disable-dev-shm-usage')
-        driver = webdriver.Chrome(options=chrome_options)
+        service = webdriver.ChromeService(executable_path='/opt/chromedriver-linux64/chromedriver')
+        options = webdriver.ChromeOptions()
+        options.binary_location = '/opt/chrome-headless-shell-linux64/chrome-headless-shell'
+        options.add_argument('--no-sandbox')
+        driver = webdriver.Chrome(service=service,options=options)
 
         _loader_config = {
             'prefix': self._config.connection_specification.site_url,

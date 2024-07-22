@@ -7,12 +7,9 @@ from __future__ import annotations
 from typing import Optional, Literal
 
 from pydantic import AnyUrl, BaseModel, Field
+from dat_core.pydantic_models import ConnectionSpecification
 
-
-class ConnectionSpecification(BaseModel):
-    class Config:
-        extra = 'allow'
-
+class ConnectionSpecificationModel(ConnectionSpecification):
     aws_access_key: str = Field(
         ..., description='AWS access key for the project', title='AWS access key'
     )
@@ -28,13 +25,10 @@ class ConnectionSpecification(BaseModel):
 
 
 class AmazonS3Specification(BaseModel):
-    class Config:
-        extra = 'allow'
-
     documentation_url: Optional[AnyUrl] = None
     name: Literal['AmazonS3']
     module_name: Literal['amazon_s3']
-    connection_specification: ConnectionSpecification = Field(
+    connection_specification: ConnectionSpecificationModel = Field(
         ...,
         description='ConnectorDefinition specific blob. Must be a valid JSON string.',
     )

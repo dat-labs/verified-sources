@@ -4,7 +4,7 @@ import os
 from typing import Any, Generator, Iterable
 import boto3
 from dat_core.connectors.sources.stream import Stream
-from dat_core.pydantic_models import DatCatalog, DatDocumentStream, DatMessage, StreamState
+from dat_core.pydantic_models import DatCatalog, DatDocumentStream, DatMessage
 from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
 from verified_sources.amazon_s3.specs import AmazonS3Specification
 
@@ -53,11 +53,12 @@ class S3BaseStream(Stream):
         Yields:
             Generator[DatMessage, Any, Any]: A generator yielding DatMessage objects.
         """
-        objects = self.s3_client.list_objects_v2(
+        objects = list()
+        for directory in configured_stream.dir_prefix:
+            objects += self.s3_client.list_objects_v2(
             Bucket=self._config.connection_specification.bucket_name,
-            Prefix=configured_stream.dir_prefix
+            Prefix=directory
             )['Contents']
-
         objects = sorted(objects, key=lambda obj: obj['LastModified'].timestamp())
 
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -69,11 +70,11 @@ class S3BaseStream(Stream):
 
                 _doc_loader_and_splitter = doc_splitter_factory.create(
                         loader_key=self._doc_loader,
-                        splitter_key=configured_stream.advanced.splitter_settings.strategy,
+                        splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY.value,
                         loader_config=dict(
                             file_path=file_path,
-                        ),
-                        splitter_config=configured_stream.advanced.splitter_settings.config
+                        )
+                        # splitter_config=configured_stream.advanced.splitter_settings.config
                 )
                 for _doc_chunk in _doc_loader_and_splitter.load_and_chunk():
                     yield self.as_record_message(
