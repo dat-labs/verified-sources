@@ -80,6 +80,7 @@ class URLCrawler(Stream):
             options.add_argument('--no-sandbox')
             driver = webdriver.Chrome(service=service,options=options)
 
+
         _loader_config = {
             'prefix': self._config.connection_specification.site_url,
             'driver': driver
