@@ -24,7 +24,7 @@ from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, 
 from verified_sources.website_crawler.specs import WebsiteCrawlerSpecification
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
+from selenium.common.exceptions import SessionNotCreatedException
 
 class URLCrawler(Stream):
     """
@@ -67,11 +67,19 @@ class URLCrawler(Stream):
         Yields:
             Generator[DatMessage, Any, Any]: A generator yielding DatMessage objects.
         """
-        service = webdriver.ChromeService(executable_path='/opt/chromedriver-linux64/chromedriver')
-        options = webdriver.ChromeOptions()
-        options.binary_location = '/opt/chrome-headless-shell-linux64/chrome-headless-shell'
-        options.add_argument('--no-sandbox')
-        driver = webdriver.Chrome(service=service,options=options)
+        try:
+            chrome_options = Options()
+            chrome_options.add_argument('--no-sandbox')
+            chrome_options.add_argument('--headless')
+            chrome_options.add_argument('--disable-dev-shm-usage')
+            driver = webdriver.Chrome(options=chrome_options)
+        except SessionNotCreatedException:
+            service = webdriver.ChromeService(executable_path='/opt/chromedriver-linux64/chromedriver')
+            options = webdriver.ChromeOptions()
+            options.binary_location = '/opt/chrome-headless-shell-linux64/chrome-headless-shell'
+            options.add_argument('--no-sandbox')
+            driver = webdriver.Chrome(service=service,options=options)
+
 
         _loader_config = {
             'prefix': self._config.connection_specification.site_url,
