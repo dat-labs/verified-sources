@@ -65,7 +65,7 @@ class GoogleCloudStorageStream(Stream):
             'csv': DocLoaderType.TEXT,
             'log': DocLoaderType.TEXT,
             'html': DocLoaderType.HTML,
-            'md': DocLoaderType.MARKDOWN,
+            # 'md': DocLoaderType.MARKDOWN,
         }
         bucket_client = self.storage_client.get_bucket(
             self._config.connection_specification.bucket_name)
