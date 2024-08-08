@@ -23,8 +23,7 @@ from dat_core.pydantic_models import DatCatalog, DatDocumentStream, DatMessage, 
 from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
 from verified_sources.website_crawler.specs import WebsiteCrawlerSpecification
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import SessionNotCreatedException
+from urllib3.exceptions import MaxRetryError
 
 class URLCrawler(Stream):
     """
@@ -67,20 +66,13 @@ class URLCrawler(Stream):
         Yields:
             Generator[DatMessage, Any, Any]: A generator yielding DatMessage objects.
         """
+        options = webdriver.ChromeOptions()
+        options.add_argument('--ignore-ssl-errors=yes')
+        options.add_argument('--ignore-certificate-errors')
         try:
-            chrome_options = Options()
-            chrome_options.add_argument('--no-sandbox')
-            chrome_options.add_argument('--headless')
-            chrome_options.add_argument('--disable-dev-shm-usage')
-            driver = webdriver.Chrome(options=chrome_options)
-        except SessionNotCreatedException:
-            service = webdriver.ChromeService(executable_path='/opt/chromedriver-linux64/chromedriver')
-            options = webdriver.ChromeOptions()
-            options.binary_location = '/opt/chrome-headless-shell-linux64/chrome-headless-shell'
-            options.add_argument('--no-sandbox')
-            driver = webdriver.Chrome(service=service,options=options)
-
-
+            driver = webdriver.Remote(command_executor="http://localhost:4444/wd/hub", options=options)
+        except MaxRetryError:
+            driver = webdriver.Remote(command_executor="http://selenium-chrome:4444/wd/hub", options=options)
         _loader_config = {
             'prefix': self._config.connection_specification.site_url,
             'driver': driver
@@ -91,7 +83,7 @@ class URLCrawler(Stream):
         doc_splitter = doc_splitter_factory.create(
             loader_key=DocLoaderType.WHOLE_SITE_READER,
             splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY.value,
-            loader_config=_loader_config
+            loader_config=_loader_config,
             # splitter_key=configured_stream.advanced.splitter_settings.strategy,
             # splitter_config=configured_stream.advanced.splitter_settings.config
             )
