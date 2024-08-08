@@ -13,6 +13,10 @@ dat-cli = {git = "https://github.com/dat-labs/dat-cli", rev = "main"}
 beautifulsoup4 = "^4.12.3"
 boto3 = "*"
 psycopg = "^3.1.19"
+langchain-text-splitters = "^0.0.1"
+langchain-community = "^0.0.32"
+llama-index-readers-s3 = "^0.1.7"
+llama-index-readers-web = "^0.1.21"
 
 [tool.poetry.group.dev.dependencies]
 pydantic = "^2.6.3"
