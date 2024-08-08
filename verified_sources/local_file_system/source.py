@@ -26,19 +26,19 @@ class LocalFileSystem(SourceBase):
 
         connected, message = False, 'Connection failed'
 
-        file_name = config.connection_specification.file_name
-        bucket_name = config.connection_specification.bucket_name
+        file_path = config.connection_specification.obj_file_path
+        bucket_name = os.getenv('MINIO_BUCKET')
         endpoint = os.getenv('MINIO_ENDPOINT')      
         access_key = os.getenv('MINIO_USER')
         secret = os.getenv('MINIO_PASS')
         try:
             client = Minio(endpoint, access_key=access_key, secret_key=secret, secure=False)
-            client.stat_object(bucket_name, file_name)
+            client.stat_object(bucket_name, file_path)
             _msg = DatMessage(
                 type=Type.LOG,
                 log=DatLogMessage(
                     level=Level.INFO,
-                    message=f"Successfully connected to {bucket_name}/{file_name}"
+                    message=f"Successfully connected to {bucket_name}/{file_path}"
                 )
             )
             print(_msg.model_dump_json(), flush=True)

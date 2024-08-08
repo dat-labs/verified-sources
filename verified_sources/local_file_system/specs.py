@@ -13,15 +13,12 @@ class ConnectionSpecificationModel(ConnectionSpecification):
     class Config:
         extra = 'allow'
 
-    file_name: str = Field(
-        ..., description='The name of the file to be read.', title='File Name',
+    obj_file_path: str = Field(
+        ..., description='The name of the file to be read.', title='File Path',
         json_schema_extra={'ui-opts': {'hidden': True}}
     )
-    bucket_name: str = Field(
-        ..., description='The name of the bucket to be read.', title='Bucket Name',
-        json_schema_extra={'ui-opts': {'hidden': True}}
-    )
-    file_path: str = Field(
+
+    usr_file_path: str = Field(
         ..., description='The path to the file to be read.', title='File Path'
     )
 

@@ -46,8 +46,8 @@ class LocalFileSystemStream(Stream):
         Yields:
             Generator[DatMessage, Any, Any]: A generator yielding DatMessage objects.
         """
-        file_path = self._config.connection_specification.file_name
-        bucket_name = self._config.connection_specification.bucket_name
+        file_path = self._config.connection_specification.obj_file_path
+        bucket_name = os.getenv('MINIO_BUCKET')
 
         client = Minio(
             endpoint=os.getenv('MINIO_ENDPOINT'),

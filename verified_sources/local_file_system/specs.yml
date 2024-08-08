@@ -21,5 +21,9 @@ properties:
     type: object
     additionalProperties: true
     properties:
-      property_0:
+      obj_file_path:
         type: string
+        description: "Path to the object file"
+      usr_file_path:
+        type: string
+        description: "Path to the user file"
