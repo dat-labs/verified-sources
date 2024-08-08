@@ -13,6 +13,7 @@ dat-cli = {git = "https://github.com/dat-labs/dat-cli", rev = "main"}
 beautifulsoup4 = "^4.12.3"
 boto3 = "*"
 psycopg = "^3.1.19"
+google-cloud-storage = "^2.18.0"
 
 [tool.poetry.group.dev.dependencies]
 pydantic = "^2.6.3"
