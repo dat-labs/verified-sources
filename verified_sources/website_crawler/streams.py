@@ -13,14 +13,14 @@ Dependencies:
     - dat_core.pydantic_models.DatDocumentStream: A DatDocumentStream class from the dat_core.pydantic_models module.
     - dat_core.pydantic_models.DatMessage: A DatMessage class from the dat_core.pydantic_models module.
     - dat_core.pydantic_models.StreamState: A StreamState class from the dat_core.pydantic_models module.
-    - dat_core.doc_splitters.factory.doc_splitter_factory: A doc_splitter_factory function from the dat_core.doc_splitters.factory module.
+    - verified_sources.common.doc_splitters.factory.doc_splitter_factory: A doc_splitter_factory function from the verified_sources.common.doc_splitters.factory module.
     - verified_sources.website_crawler.specs.WebsiteCrawlerSpecification: A WebsiteCrawlerSpecification class from the verified_sources.website_crawler.specs module.
 """
 
 from typing import Any, Generator
 from dat_core.connectors.sources.stream import Stream
 from dat_core.pydantic_models import DatCatalog, DatDocumentStream, DatMessage, StreamState
-from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
+from verified_sources.common.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
 from verified_sources.website_crawler.specs import WebsiteCrawlerSpecification
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -90,10 +90,10 @@ class URLCrawler(Stream):
         }
         doc_splitter = doc_splitter_factory.create(
             loader_key=DocLoaderType.WHOLE_SITE_READER,
-            splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY.value,
-            loader_config=_loader_config
-            # splitter_key=configured_stream.advanced.splitter_settings.strategy,
-            # splitter_config=configured_stream.advanced.splitter_settings.config
+            # splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY.value,
+            loader_config=_loader_config,
+            splitter_key=configured_stream.advanced.splitter_settings.splitter_settings,
+            splitter_config=configured_stream.advanced.splitter_settings
             )
         for chunk in doc_splitter.load_and_chunk(**_load_kwargs):
             try:
