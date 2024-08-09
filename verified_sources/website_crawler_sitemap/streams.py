@@ -5,7 +5,6 @@ from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, 
 from verified_sources.website_crawler_sitemap.specs import WebsiteCrawlerSitemapSpecification, FilterSpecification
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
-from pydantic import HttpUrl
 import requests
 
 class CrawlerSitemap(Stream):
@@ -47,18 +46,18 @@ class CrawlerSitemap(Stream):
         Yields:
             Generator[DatMessage, Any, Any]: A generator yielding DatMessage objects.
         """
-        _loader_config = {
-            'site_url': self._config.connection_specification.site_url,
-            'filters': self._config.connection_specification.filters
+        urls = self.get_links(url=self._config.connection_specification.site_url, 
+                              filter=self._config.connection_specification.filter)
+        _load_kwargs = {
+            'urls': urls,
         }
 
         doc_splitter = doc_splitter_factory.create(
             loader_key=DocLoaderType.BEAUTIFUL_SOUP,
             splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY.value,
-            loader_config=_loader_config
         )
 
-        for chunk in doc_splitter.load_and_chunk():
+        for chunk in doc_splitter.load_and_chunk(**_load_kwargs):
             try:
                 _doc_chunk = chunk.page_content
             except (ValueError, AttributeError):
@@ -71,7 +70,7 @@ class CrawlerSitemap(Stream):
             )
 
         
-    def get_links(self, url: HttpUrl, filter: FilterSpecification) -> List[HttpUrl]:
+    def get_links(self, url: str, filter: FilterSpecification) -> List[str]:
         """
         Given a url, return list of all http URLs in it if a sitemap exists
         """
@@ -90,12 +89,12 @@ class CrawlerSitemap(Stream):
 
         return list(links)
     
-    def get_sitemap(self, url: HttpUrl) -> Optional[HttpUrl]:
-        parsed_url = urlparse(url)
+    def get_sitemap(self, url: str) -> Optional[str]:
+        parsed_url = urlparse(str(url))
         sitemap_url = f"{parsed_url.scheme}://{parsed_url.netloc}/sitemap.xml"
         response = requests.get(sitemap_url)
         if response.status_code == 200:
-            return sitemap_url
+            return str(sitemap_url)
         else:
             return None
         

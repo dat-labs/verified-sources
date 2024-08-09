@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Optional, Literal
 
-from pydantic import BaseModel, Field, HttpUrl, AnyUrl
+from pydantic import BaseModel, Field, AnyUrl
 from dat_core.pydantic_models import ConnectionSpecification
 
 class FilterSpecification(BaseModel):
@@ -14,7 +14,7 @@ class FilterSpecification(BaseModel):
     prefix: Optional[str]
 
 class ConnectionSpecificationModel(ConnectionSpecification):
-    site_url: HttpUrl
+    site_url: str
     filter: FilterSpecification
 
 

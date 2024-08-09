@@ -12,7 +12,7 @@ from dat_core.pydantic_models import DatDocumentStream, DatCatalog, Advanced
 
 class CrawlerSitemapStream(DatDocumentStream):
     name: Optional[str] = Field(
-        'crawler_sitemap',
+        'sitemap_crawler',
         description='The name of the document stream.',
     )
     namespace: Optional[str] = Field(
@@ -21,4 +21,4 @@ class CrawlerSitemapStream(DatDocumentStream):
 
 
 class WebsiteCrawlerSitemapCatalog(DatCatalog):
-    streams: Optional[List[CrawlerSitemapStream]] = None
+    document_streams: Optional[List[CrawlerSitemapStream]] = None
