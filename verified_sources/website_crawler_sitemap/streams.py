@@ -1,7 +1,7 @@
 from typing import Any, Generator, List, Optional
 from dat_core.connectors.sources.stream import Stream
 from dat_core.pydantic_models import DatCatalog, DatDocumentStream, DatMessage, StreamState
-from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
+from verified_sources.common.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
 from verified_sources.website_crawler_sitemap.specs import WebsiteCrawlerSitemapSpecification, FilterSpecification
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
@@ -54,7 +54,7 @@ class CrawlerSitemap(Stream):
 
         doc_splitter = doc_splitter_factory.create(
             loader_key=DocLoaderType.BEAUTIFUL_SOUP,
-            splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY.value,
+            splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY,
         )
 
         for chunk in doc_splitter.load_and_chunk(**_load_kwargs):
