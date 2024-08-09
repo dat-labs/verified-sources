@@ -15,7 +15,7 @@ from dat_core.pydantic_models import (
     Level
 )
 from dat_core.auth.oauth2_authenticator import BaseOauth2Authenticator
-from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
+from verified_sources.common.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
 
 class GoogleDriveStream(Stream):
     """

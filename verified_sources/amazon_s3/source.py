@@ -6,7 +6,7 @@ import jsonref
 from dat_core.pydantic_models import DatMessage, DatLogMessage, Type, Level
 from dat_core.connectors.sources.base import SourceBase
 from dat_core.connectors.sources.stream import Stream
-from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
+from verified_sources.common.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
 from verified_sources.amazon_s3.streams import S3TxtStream, S3PdfStream
 from verified_sources.amazon_s3.specs import AmazonS3Specification
 from verified_sources.amazon_s3.catalog import AmazonS3Catalog
