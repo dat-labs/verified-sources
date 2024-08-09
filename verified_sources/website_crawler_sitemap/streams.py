@@ -1,10 +1,11 @@
-from typing import Any, Generator, HttpUrl, List, Optional
+from typing import Any, Generator, List, Optional
 from dat_core.connectors.sources.stream import Stream
 from dat_core.pydantic_models import DatCatalog, DatDocumentStream, DatMessage, StreamState
 from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
-from verified_sources.website_crawler_sitemap.specs import WebsiteCrawlerSitemapSpecification
+from verified_sources.website_crawler_sitemap.specs import WebsiteCrawlerSitemapSpecification, FilterSpecification
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
+from pydantic import HttpUrl
 import requests
 
 class CrawlerSitemap(Stream):
@@ -46,20 +47,45 @@ class CrawlerSitemap(Stream):
         Yields:
             Generator[DatMessage, Any, Any]: A generator yielding DatMessage objects.
         """
+        _loader_config = {
+            'site_url': self._config.connection_specification.site_url,
+            'filters': self._config.connection_specification.filters
+        }
+
+        doc_splitter = doc_splitter_factory.create(
+            loader_key=DocLoaderType.BEAUTIFUL_SOUP,
+            splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY.value,
+            loader_config=_loader_config
+        )
+
+        for chunk in doc_splitter.load_and_chunk():
+            try:
+                _doc_chunk = chunk.page_content
+            except (ValueError, AttributeError):
+                _doc_chunk = chunk
+            yield self.as_record_message(
+                configured_stream=configured_stream,
+                doc_chunk=_doc_chunk,
+                data_entity=self._config.connection_specification.site_url,
+                extra_metadata={'site_url': self._config.connection_specification.site_url}
+            )
 
         
-    def get_links(self, url: HttpUrl, filter: dict) -> List[HttpUrl]:
+    def get_links(self, url: HttpUrl, filter: FilterSpecification) -> List[HttpUrl]:
         """
         Given a url, return list of all http URLs in it if a sitemap exists
         """
         sitemap_url = self.get_sitemap(url)
+        if not sitemap_url:
+            return []
         response = requests.get(sitemap_url)
         sitemap = response.content
         soup = BeautifulSoup(sitemap, 'xml')
         links = set()
         for loc in soup.find_all('loc'):
             link = loc.text
-            
+            links.add(link)
+
             # TODO
 
         return list(links)

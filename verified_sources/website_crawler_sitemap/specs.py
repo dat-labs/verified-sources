@@ -9,10 +9,13 @@ from typing import Optional, Literal
 from pydantic import BaseModel, Field, HttpUrl, AnyUrl
 from dat_core.pydantic_models import ConnectionSpecification
 
+class FilterSpecification(BaseModel):
+    max_depth: Optional[int]
+    prefix: Optional[str]
+
 class ConnectionSpecificationModel(ConnectionSpecification):
     site_url: HttpUrl
-    max_depth: Optional[int] = -1
-    prefix: Optional[str]
+    filter: FilterSpecification
 
 
 class WebsiteCrawlerSitemapSpecification(BaseModel):
