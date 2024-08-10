@@ -48,9 +48,9 @@ We have a detailed description for what each file does under our [docs](http://p
 
 ### `specs.yml`
 
-Here, we can add any additional parameters (as keys) that we want our generator to have under `connection_specification`.
+Here, we can add any additional parameters (as keys) that we want our source to have under `connection_specification`.
 
-E.g. If you are developing a Google Drive generator actor, you might want to ask for the `client_id`, `client_secret` and `refresh_token` as part of `connection_specification`. You can add it like so:
+E.g. If you are developing a Google Drive source actor, you might want to ask for the `client_id`, `client_secret` and `refresh_token` as part of `connection_specification`. You can add it like so:
 Example:
 ```yml
 description: Specification of an actor (source/embeddingsgenerator/destination)
@@ -108,32 +108,54 @@ file truncated for brevity
 There are two methods in the file that need to be implemented. Stub code has already been generated.
 
 #### `check_connection(...):`
-```python
-# TODO
-```
+Implement your connection logic here.
+
+Returns `(connections_status, message)`
 
 
 #### `streams(...):`
-```python
-# TODO
+Return a list of valid streams
+
+### `catalog.yml`
+Contains the structure of valid streams of this actor.
+```yml
+type: object
+properties:
+  document_streams:
+    type: array
+    items:
+      - type: object
+        allOf:
+        - "$ref": "https://raw.githubusercontent.com/dat-labs/dat-core/main/dat_core/specs/DatDocumentStream.yml"
+        required:
+          - dir_uris
+        properties:
+          name:
+            type: string
+            const: pdf
+          namespace:
+            description: "namespace the data is associated with"
+            type: string
+            title: "Namespace"
+            order: 0
+          dir_uris:
+            type: array
+            title: "Directory URIs"
+            order: 1
+            items:
+              type: string
 ```
 
-### `streams.yml`
-```python
-# TODO
-```
+### `catalog.py`
+This file contains the `specs.yml` file as a [Pydantic](https://docs.pydantic.dev/latest/concepts/models/) model. You can generate it using [`datamodel-codegen`](https://docs.pydantic.dev/latest/integrations/datamodel_code_generator/) or edit manually.
 
 ### `streams.py`
 #### `__init__(...):`
-```python
-# TODO
-```
+Initializer
 
 
 #### `read_records(...):`
-```python
-# TODO
-```
+Logic to read_records
 
 
 ## Running tests
