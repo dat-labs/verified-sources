@@ -5,7 +5,7 @@ from typing import Any, Generator, Iterable
 import boto3
 from dat_core.connectors.sources.stream import Stream
 from dat_core.pydantic_models import DatCatalog, DatDocumentStream, DatMessage
-from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
+from verified_sources.common.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
 from verified_sources.amazon_s3.specs import AmazonS3Specification
 
 
