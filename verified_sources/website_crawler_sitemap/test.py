@@ -10,5 +10,11 @@ def get_sitemap(url: HttpUrl):
             return sitemap_url
         else:
             return None
+def get_link(link):
+    parsed_url = urlparse(link)
+    print(parsed_url)
+    segments = parsed_url.path.split('/')
+    link = f"{parsed_url.scheme}://{parsed_url.netloc}{'/'.join(segments[:3])}"
+    return link
 
-print(urlparse('https://docs.datachannel.co/getting-started/1.0.0/index.html'))
+print(get_link('https://docs.datachannel.co/getting-started/1.0.0/index.html'))

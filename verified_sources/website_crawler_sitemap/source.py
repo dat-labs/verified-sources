@@ -7,7 +7,7 @@ import requests
 from dat_core.connectors.sources.base import SourceBase
 from dat_core.connectors.sources.stream import Stream
 from verified_sources.website_crawler_sitemap.specs import WebsiteCrawlerSitemapSpecification
-from verified_sources.website_crawler_sitemap.catalog import WebsiteCrawlerSitemapCatalog
+from verified_sources.website_crawler_sitemap.catalog import WebsiteCrawlerSitemapCatalog, CrawlerSitemapStream
 from verified_sources.website_crawler_sitemap.streams import CrawlerSitemap
 
 
@@ -35,3 +35,33 @@ class WebsiteCrawlerSitemap(SourceBase):
             return sitemap_url
         else:
             return None
+        
+if __name__ == '__main__':
+    website_crawler_sitemap = WebsiteCrawlerSitemap()
+
+    urls = {
+        'dtc-docs':'https://docs.datachannel.co/getting-started/1.0.0/index.html',
+        'blogger':'https://blog-test-123-1.blogspot.com/',
+    }
+
+    _config = WebsiteCrawlerSitemapSpecification(
+        module_name='website_crawler_sitemap',
+        name='WebsiteCrawlerSitemap',
+        connection_specification={
+            'site_url': urls['dtc-docs'],
+            'filter':{
+                # This filter fetches the data of the first 5 levels of any url in the sitemap
+                # starting with the url https://docs.datachannel.co/getting-started/1.0.0/applications/cloud_application
+                'max_depth':'5',
+                'prefix':'https://docs.datachannel.co/getting-started/1.0.0/applications/cloud_application',
+            }
+        }
+    )
+
+    _stream = CrawlerSitemapStream(config=_config)
+    _catalog = WebsiteCrawlerSitemapCatalog(document_streams=[_stream,])
+    for msg in website_crawler_sitemap.read(_config, _catalog):
+        print(msg.model_dump_json(), end="\n\n")
+        # Uncomment this to write output to a file
+        # with open('sitemap_data.txt', 'a') as f:
+        #     f.write(msg.model_dump_json() + '\n\n')

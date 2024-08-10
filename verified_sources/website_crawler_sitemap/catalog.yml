@@ -7,10 +7,11 @@ properties:
         allOf:
         - "$ref": "https://raw.githubusercontent.com/dat-labs/dat-core/main/dat_core/specs/DatDocumentStream.yml"
         required:
-          - property_0
+          - site_url
         properties:
           name:
             type: string
-            default: website_crawler_sitemap_stream_0
-          property_0:
+            const: crawler_sitemap
+          namespace:
             type: string
+            description: "namespace the data is associated with"

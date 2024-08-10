@@ -2,20 +2,20 @@ from typing import Any, Generator, List, Optional
 from dat_core.connectors.sources.stream import Stream
 from dat_core.pydantic_models import DatCatalog, DatDocumentStream, DatMessage, StreamState
 from verified_sources.common.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
-from verified_sources.website_crawler_sitemap.specs import WebsiteCrawlerSitemapSpecification, FilterSpecification
+from verified_sources.website_crawler_sitemap.specs import WebsiteCrawlerSitemapSpecification, Filters
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import requests
 
 class CrawlerSitemap(Stream):
     """
-    website_crawler_sitemapStream0 class for crawling and processing URLs.
+    CrawlerSitemap class for crawling and processing URLs.
 
     Attributes:
-        _name (str): The name of the website_crawler_sitemapStream0 stream ('url_crawler').
+        _name (str): The name of the CrawlerSitemap stream ('crawler_sitemap').
 
     Methods:
-        __init__: Initializes a new website_crawler_sitemapStream0 object.
+        __init__: Initializes a new CrawlerSitemap object.
         read_records: Reads records from the configured stream and yields DatMessage objects.
     """
 
@@ -23,7 +23,7 @@ class CrawlerSitemap(Stream):
 
     def __init__(self, config: WebsiteCrawlerSitemapSpecification) -> None:
         """
-        Initializes a new website_crawler_sitemapStream0 object.
+        Initializes a new CrawlerSitemap object.
 
         Parameters:
             config (WebsiteCrawlerSitemapSpecification): The configuration object for URL crawling.
@@ -70,7 +70,7 @@ class CrawlerSitemap(Stream):
             )
 
         
-    def get_links(self, url: str, filter: FilterSpecification) -> List[str]:
+    def get_links(self, url: str, filter: Filters) -> List[str]:
         """
         Given a url, return list of all http URLs in it if a sitemap exists
         """
@@ -81,11 +81,28 @@ class CrawlerSitemap(Stream):
         sitemap = response.content
         soup = BeautifulSoup(sitemap, 'xml')
         links = set()
+        links.add(sitemap_url)
         for loc in soup.find_all('loc'):
             link = loc.text
-            links.add(link)
+            
+            # Apply max_depth filter if it exists
+            if filter.max_depth:
+                if filter.max_depth > -1:
+                    parsed_url = urlparse(link)
+                    segments = parsed_url.path.split('/')
+                    link = f"{parsed_url.scheme}://{parsed_url.netloc}{'/'.join(segments[:filter.max_depth+1])}"
+            
+            # Apply prefix filter if it exists
+            if filter.prefix != "None":
+                # If the link does not starts with a prefix, skip it
+                if not link.startswith(filter.prefix):
+                    continue
 
-            # TODO
+            links.add(link)
+        
+        # Uncomment this to write the links to a file
+        # with open('links.txt', 'w') as f:
+        #     f.write('\n'.join(links))
 
         return list(links)
     

@@ -9,13 +9,13 @@ from typing import Optional, Literal
 from pydantic import BaseModel, Field, AnyUrl
 from dat_core.pydantic_models import ConnectionSpecification
 
-class FilterSpecification(BaseModel):
-    max_depth: Optional[int]
-    prefix: Optional[str]
+class Filters(BaseModel):
+    max_depth: Optional[int] = Field(-1, description="Only include URLs up to this depth. -1 includes all.")
+    prefix: Optional[str] = Field("None", description="Only include URLs that start with this prefix")
 
 class ConnectionSpecificationModel(ConnectionSpecification):
     site_url: str
-    filter: FilterSpecification
+    filter: Optional[Filters]
 
 
 class WebsiteCrawlerSitemapSpecification(BaseModel):

@@ -9,11 +9,15 @@ from typing import List, Optional
 from pydantic import Field
 from dat_core.pydantic_models import DatDocumentStream, DatCatalog, Advanced
 
-
 class CrawlerSitemapStream(DatDocumentStream):
     name: Optional[str] = Field(
-        'sitemap_crawler',
+        'crawler_sitemap',
         description='The name of the document stream.',
+        json_schema_extra={
+            'ui-opts': {
+                'hidden': True,
+            }
+        }
     )
     namespace: Optional[str] = Field(
         None, description='namespace the data is associated with'
