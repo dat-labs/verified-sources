@@ -3,7 +3,7 @@ import tempfile
 from typing import Any, Generator
 from dat_core.connectors.sources.stream import Stream
 from dat_core.pydantic_models import DatCatalog, DatDocumentStream, DatMessage
-from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
+from verified_sources.common.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
 from verified_sources.google_cloud_storage.specs import GoogleCloudStorageSpecification
 from google.cloud import storage
 from google.oauth2.credentials import Credentials
@@ -65,7 +65,7 @@ class GoogleCloudStorageStream(Stream):
             'csv': DocLoaderType.TEXT,
             'log': DocLoaderType.TEXT,
             'html': DocLoaderType.HTML,
-            # 'md': DocLoaderType.MARKDOWN,
+            'md': DocLoaderType.MARKDOWN,
         }
         bucket_client = self.storage_client.get_bucket(
             self._config.connection_specification.bucket_name)

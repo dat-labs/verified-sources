@@ -23,6 +23,7 @@ from langchain_community.document_loaders import (
     GoogleDriveLoader,
     UnstructuredURLLoader,
     S3DirectoryLoader,
+    UnstructuredMarkdownLoader,
 
 )
 from llama_index.readers.s3 import S3Reader
@@ -42,7 +43,7 @@ class DocLoaderType(Enum):
     GOOGLE_DRIVE = 'GOOGLE_DRIVE'
     WHOLE_SITE_READER = 'WHOLE_SITE_READER'
     S3_DIR_LOADER = 'S3_DIR_LOADER'
-
+    MARKDOWN = 'MARKDOWN_LOADER'
 class TextSplitterType(Enum):
     SPLIT_BY_HTML_HEADER = 'SPLIT_BY_HTML_HEADER'
     SPLIT_BY_CHARACTER = 'SPLIT_BY_CHARACTER'
@@ -141,6 +142,8 @@ doc_splitter_factory.register_loader(DocLoaderType.CSV, CSVLoader)
 doc_splitter_factory.register_loader(DocLoaderType.GOOGLE_DRIVE, GoogleDriveLoader)
 doc_splitter_factory.register_loader(DocLoaderType.WHOLE_SITE_READER, WholeSiteReader)
 doc_splitter_factory.register_loader(DocLoaderType.S3_DIR_LOADER, S3Reader)
+doc_splitter_factory.register_loader(
+    DocLoaderType.MARKDOWN, UnstructuredMarkdownLoader)
 
 
 
