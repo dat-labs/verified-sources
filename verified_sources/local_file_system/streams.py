@@ -46,7 +46,7 @@ class LocalFileSystemStream(Stream):
         Yields:
             Generator[DatMessage, Any, Any]: A generator yielding DatMessage objects.
         """
-        file_path = self._config.connection_specification.obj_file_path
+        file_path = configured_stream.obj_file_path
         bucket_name = os.getenv('MINIO_BUCKET')
 
         client = Minio(
@@ -77,7 +77,14 @@ class LocalFileSystemStream(Stream):
 
 class LocalFileSystemTxtStream(LocalFileSystemStream):
     """
-    A strean for reading text files from the local file system.
+    A stream for reading text files from the local file system.
     """
     _name = 'txt'
     _doc_loader = DocLoaderType.TEXT
+
+class LocalFileSystemCsvStream(LocalFileSystemStream):
+    """
+    A stream for reading CSV files from the local file system.
+    """
+    _name = 'csv'
+    _doc_loader = DocLoaderType.CSV

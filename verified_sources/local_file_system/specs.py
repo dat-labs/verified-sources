@@ -13,14 +13,6 @@ class ConnectionSpecificationModel(ConnectionSpecification):
     class Config:
         extra = 'allow'
 
-    obj_file_path: str = Field(
-        ..., description='The name of the file to be read.', title='File Path',
-        json_schema_extra={'ui-opts': {'hidden': True}}
-    )
-
-    usr_file_path: str = Field(
-        ..., description='The path to the file to be read.', title='File Path'
-    )
 
 class LocalFileSystemSpecification(BaseModel):
     class Config:
