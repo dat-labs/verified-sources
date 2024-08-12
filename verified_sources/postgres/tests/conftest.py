@@ -1,6 +1,7 @@
 import os
 from pytest import fixture
 
+
 @fixture()
 def valid_connection_object():
     yield {
@@ -12,28 +13,50 @@ def valid_connection_object():
         'schemas': ['public']
     }
 
+
 @fixture()
 def valid_catalog_object():
     yield {'document_streams': [
         {
             'name': 'actors',
-            'namespace': 'postgres_actors',
+            'namespace': 'postgres_pytest_actor',
             'read_sync_mode': 'FULL_REFRESH',
             'write_sync_mode': 'APPEND',
             'advanced': {
                 'splitter_settings': {
                     'strategy': 'SPLIT_BY_CHARACTER'
                 }
+            },
+            'json_schema': {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "actor_type": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
             }
         }
     ]}
+
 
 @fixture()
 def valid_incremental_catalog_object():
     yield {'document_streams': [
         {
             'name': 'actors',
-            'namespace': 'postgres_actors',
+            'namespace': 'postgres_pytest_actor',
             'read_sync_mode': 'INCREMENTAL',
             'cursor_field': 'updated_at',
             'write_sync_mode': 'APPEND',
@@ -41,9 +64,30 @@ def valid_incremental_catalog_object():
                 'splitter_settings': {
                     'strategy': 'SPLIT_BY_CHARACTER'
                 }
+            },
+            'json_schema': {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "actor_type": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
             }
         }
     ]}
+
 
 @fixture
 def valid_stream_state_object():
