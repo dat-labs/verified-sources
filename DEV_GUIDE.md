@@ -26,9 +26,9 @@ verified_sources/{your-source-connector}/catalog.py written.
 verified_sources/{your-source-connector}/streams.py written.pywritten.
 ```
 
-Your `verified-generators` directory should look something like this:
+Your `verified-sources` directory should look something like this:
 ```text
-verified_generators/
+verified_sources/
 ├── {your-source-connector}
 │   ├── catalog.py
 │   ├── catalog.yml
