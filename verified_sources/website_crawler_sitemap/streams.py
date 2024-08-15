@@ -74,9 +74,15 @@ class CrawlerSitemap(Stream):
         """
         Given a url, return list of all http URLs in it if a sitemap exists
         """
-        sitemap_url = self.get_sitemap(url)
+        # Apply sitemap_url filter if it exists
+        if filter.sitemap_url != "None":
+            sitemap_url = filter.sitemap_url
+        else:
+            sitemap_url = self.get_sitemap(url)
+        
         if not sitemap_url:
             return []
+        
         response = requests.get(sitemap_url)
         sitemap = response.content
         soup = BeautifulSoup(sitemap, 'xml')

@@ -12,6 +12,7 @@ from dat_core.pydantic_models import ConnectionSpecification
 class Filters(BaseModel):
     max_depth: Optional[int] = Field(-1, description="Only include URLs up to this depth. -1 includes all.")
     prefix: Optional[str] = Field("None", description="Only include URLs that start with this prefix")
+    sitemap_url: Optional[str] = Field("None", description="Custom URL for sitemap.xml")
 
 class ConnectionSpecificationModel(ConnectionSpecification):
     site_url: str

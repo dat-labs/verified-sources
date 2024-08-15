@@ -54,6 +54,7 @@ if __name__ == '__main__':
                 # starting with the url https://docs.datachannel.co/getting-started/1.0.0/applications/cloud_application
                 'max_depth':'5',
                 'prefix':'https://docs.datachannel.co/getting-started/1.0.0/applications/cloud_application',
+                # 'sitemap_url':'https://blog-test-123-1.blogspot.com/sitemap.xml',
             }
         }
     )
