@@ -46,8 +46,7 @@ class CrawlerSitemap(Stream):
         Yields:
             Generator[DatMessage, Any, Any]: A generator yielding DatMessage objects.
         """
-        urls = self.get_links(url=self._config.connection_specification.site_url, 
-                              filter=self._config.connection_specification.filter)
+        urls = self.get_links(self._config)
         _load_kwargs = {
             'urls': urls,
         }
@@ -70,14 +69,16 @@ class CrawlerSitemap(Stream):
             )
 
         
-    def get_links(self, url: str, filter: Filters) -> List[str]:
+    def get_links(self, config: WebsiteCrawlerSitemapSpecification) -> List[str]:
         """
         Given a url, return list of all http URLs in it if a sitemap exists
         """
-        # Apply sitemap_url filter if it exists
-        if filter.sitemap_url != "None":
-            sitemap_url = filter.sitemap_url
-        else:
+        url = config.connection_specification.site_url
+        sitemap_url = config.connection_specification.sitemap_url
+        filter = config.connection_specification.filter
+        
+        # Use custom sitemap_url filter if provided
+        if sitemap_url != "None":
             sitemap_url = self.get_sitemap(url)
         
         if not sitemap_url:
@@ -109,7 +110,6 @@ class CrawlerSitemap(Stream):
         # Uncomment this to write the links to a file
         # with open('links.txt', 'w') as f:
         #     f.write('\n'.join(links))
-
         return list(links)
     
     def get_sitemap(self, url: str) -> Optional[str]:
