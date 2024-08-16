@@ -19,11 +19,4 @@ properties:
   connection_specification:
     description: ConnectorDefinition specific blob. Must be a valid JSON string.
     type: object
-    additionalProperties: true
-    properties:
-      obj_file_path:
-        type: string
-        description: "Path to the object file"
-      usr_file_path:
-        type: string
-        description: "Path to the user file"
+    additionalProperties: false

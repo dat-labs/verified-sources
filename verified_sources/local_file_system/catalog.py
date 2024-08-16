@@ -53,4 +53,4 @@ class CsvDatStream(DatDocumentStream):
     )
 
 class LocalFileSystemCatalog(DatCatalog):
-    document_streams: List[Union[TxtDatStream]]
+    document_streams: List[Union[TxtDatStream, CsvDatStream]]
