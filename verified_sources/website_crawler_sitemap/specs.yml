@@ -24,7 +24,7 @@ properties:
         type: string
         required: true
         description: "URL of the website to crawl"
-      sitemap_surl:
+      sitemap_url:
         type: string
         required: false
         description: "Custom URL for sitemap.xml"
