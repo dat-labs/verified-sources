@@ -49,12 +49,12 @@ if __name__ == '__main__':
         name='WebsiteCrawlerSitemap',
         connection_specification={
             'site_url': urls['dtc-docs'],
+            # 'sitemap_url':'https://raw.githubusercontent.com/suryaanshrai/sayhello/main/sitemap.xml',
             'filter':{
                 # This filter fetches the data of the first 5 levels of any url in the sitemap
                 # starting with the url https://docs.datachannel.co/getting-started/1.0.0/applications/cloud_application
                 'max_depth':'5',
                 'prefix':'https://docs.datachannel.co/getting-started/1.0.0/applications/cloud_application',
-                # 'sitemap_url':'https://blog-test-123-1.blogspot.com/sitemap.xml',
             }
         }
     )

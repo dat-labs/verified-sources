@@ -78,7 +78,7 @@ class CrawlerSitemap(Stream):
         filter = config.connection_specification.filter
         
         # Use custom sitemap_url filter if provided
-        if sitemap_url != "None":
+        if sitemap_url == "None":
             sitemap_url = self.get_sitemap(url)
         
         if not sitemap_url:
@@ -108,8 +108,8 @@ class CrawlerSitemap(Stream):
             links.add(link)
         
         # Uncomment this to write the links to a file
-        # with open('links.txt', 'w') as f:
-        #     f.write('\n'.join(links))
+        with open('links.txt', 'w') as f:
+            f.write('\n'.join(links))
         return list(links)
     
     def get_sitemap(self, url: str) -> Optional[str]:
