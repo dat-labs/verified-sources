@@ -1,0 +1,17 @@
+type: object
+properties:
+  streams:
+    type: array
+    items:
+      - type: object
+        allOf:
+        - "$ref": "https://raw.githubusercontent.com/dat-labs/dat-core/main/dat_core/specs/DatDocumentStream.yml"
+        required:
+          - site_url
+        properties:
+          name:
+            type: string
+            const: crawler_sitemap
+          namespace:
+            type: string
+            description: "namespace the data is associated with"
