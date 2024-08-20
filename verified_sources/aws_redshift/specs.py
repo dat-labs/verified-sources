@@ -24,7 +24,12 @@ class ConnectionSpecificationModel(ConnectionSpecification):
         None, description='Username to connect to the database', title='User'
     )
     password: Optional[str] = Field(
-        None, description='Password to connect to the database', title='Password'
+        None, description='Password to connect to the database', title='Password',
+        json_schema_extra={
+            'ui-opts': {
+                'masked': True,
+            }
+        }
     )
     schemas: List[str] = Field(
         ['public'],

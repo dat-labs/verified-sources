@@ -16,10 +16,22 @@ class ConnectionSpecificationModel(ConnectionSpecification):
         ..., description='client id for the project', title='Client ID'
     )
     client_secret: str = Field(
-        ..., description='client secret for the project', title='Client Secret'
+        ..., description='client secret for the project',
+        title='Client Secret',
+        json_schema_extra={
+            'ui-opts': {
+                'masked': True,
+            }
+        }
     )
     refresh_token: str = Field(
-        ..., description='refresh token for the project', title='Refresh Token'
+        ..., description='refresh token for the project',
+        title='Refresh Token',
+        json_schema_extra={
+            'ui-opts': {
+                'masked': True,
+            }
+        }
     )
 
 

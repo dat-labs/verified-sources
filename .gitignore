@@ -166,3 +166,4 @@ poetry.lock
 verified_stub*
 
 .vscode/
+discovered_*.json
