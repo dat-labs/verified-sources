@@ -15,7 +15,7 @@ class ConnectionSpecificationModel(ConnectionSpecification):
         None, description='Hostname of the AWSRedshift server', title='Host'
     )
     port: int = Field(
-        5432, description='Port of the AWSRedshift server', title='Port'
+        5439, description='Port of the AWSRedshift server', title='Port'
     )
     database: str = Field(
         None, description='Name of the database', title='Database Name'
