@@ -4,7 +4,7 @@ from typing import Any, Generator
 from minio import Minio
 from dat_core.connectors.sources.stream import Stream
 from dat_core.pydantic_models import DatCatalog, DatDocumentStream, DatMessage, StreamState
-from dat_core.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
+from verified_sources.common.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
 from verified_sources.local_file_system.specs import LocalFileSystemSpecification
 
 class LocalFileSystemStream(Stream):
