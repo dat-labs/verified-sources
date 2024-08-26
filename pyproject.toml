@@ -17,6 +17,7 @@ langchain-text-splitters = "^0.0.1"
 langchain-community = "^0.0.32"
 llama-index-readers-s3 = "^0.1.7"
 llama-index-readers-web = "^0.1.21"
+datamodel-code-generator = "^0.25.9"
 
 [tool.poetry.group.dev.dependencies]
 pydantic = "^2.6.3"

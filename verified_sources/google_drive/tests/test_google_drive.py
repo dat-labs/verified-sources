@@ -29,3 +29,38 @@ def test_discover(valid_connection_object):
     )
     assert isinstance(_d, dict)
 
+def test_model_files():
+    with open('specs.yml', 'r') as file:
+        datamodel = file.read()
+    with TemporaryDirectory() as temporary_directory_name:
+        temporary_directory = Path(temporary_directory_name)
+        output = Path(temporary_directory / 'model.py')
+        generate(
+            datamodel,
+            input_file_type=InputFileType.JsonSchema,
+            output=output,
+            output_model_type=DataModelType.PydanticV2BaseModel,
+        )
+        model: str = output.read_text()
+        with open('tests/tmp_spec_model.py', 'w') as f:
+            f.write(model)
+            
+    from verified_sources.google_drive.tests.tmp_spec_model import GoogleDriveSpecification as GDSpec_temp
+    assert compare_class_structures(GDSpec_temp, GoogleDriveSpecification)
+    os.remove('tests/tmp_spec_model.py')
+
+
+def compare_class_structures(class1, class2):
+    # Get the list of attributes and methods for both classes
+    class1_attrs = set(dir(class1))
+    class2_attrs = set(dir(class2))
+    
+    # Filter out attributes that are automatically added by Python
+    filtered_attrs_class1 = sorted({attr for attr in class1_attrs if not attr.startswith('__')})
+    filtered_attrs_class2 = sorted({attr for attr in class2_attrs if not attr.startswith('__')})
+    
+    # Compare the sets of attributes and methods
+    if filtered_attrs_class1 == filtered_attrs_class2:
+        return True
+    else:
+        return False

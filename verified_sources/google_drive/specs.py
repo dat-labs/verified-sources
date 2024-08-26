@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any, Optional, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from dat_core.pydantic_models import ConnectionSpecification
 
 
@@ -24,8 +24,9 @@ class ConnectionSpecificationModel(ConnectionSpecification):
 
 
 class GoogleDriveSpecification(BaseModel):
-    class Config:
-        extra = 'allow'
+    model_config = ConfigDict(
+        extra='allow',
+    )
 
     name: Literal['GoogleDrive']
     module_name: Literal['google_drive']
