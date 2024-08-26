@@ -16,7 +16,7 @@ def valid_catalog_object():
         {
             'name': 'txt',
             'namespace': 'my-txt-stream',
-            'dir_prefix': 'tmp/dat',
+            'dir_prefix': [''],
             'read_sync_mode': 'INCREMENTAL',
             'write_sync_mode': 'REPLACE',
             'advanced': {
