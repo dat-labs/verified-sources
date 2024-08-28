@@ -23,7 +23,9 @@ class WebsiteCrawlerSitemapSpecification(BaseModel):
     class Config:
         extra = 'allow'
 
-    documentation_url: Optional[AnyUrl] = None
+    documentation_url: Optional[str] = (
+        'https://datlabs.gitbook.io/datlabs/integrations/sources/website-crawler-sitemap'
+    )
     name: Literal['WebsiteCrawlerSitemap']
     module_name: Literal['website_crawler_sitemap']
     connection_specification: ConnectionSpecificationModel = Field(

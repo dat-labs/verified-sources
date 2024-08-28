@@ -18,7 +18,9 @@ class LocalFileSystemSpecification(BaseModel):
     class Config:
         extra = 'allow'
 
-    documentation_url: Optional[AnyUrl] = None
+    documentation_url: Optional[str] = (
+        'https://datlabs.gitbook.io/datlabs/integrations/sources/local-file-system'
+    )
     name: Literal['LocalFileSystem']
     module_name: Literal['local_file_system']
     connection_specification: ConnectionSpecificationModel = Field(

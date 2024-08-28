@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, List
+from typing import Optional, List, Literal
 
 from pydantic import AnyUrl, BaseModel, Field
 from dat_core.pydantic_models import ConnectionSpecification
@@ -39,14 +39,11 @@ class ConnectionSpecificationModel(ConnectionSpecification):
 
 
 class AWSRedshiftSpecification(BaseModel):
-    documentation_url: Optional[AnyUrl] = None
-    name: str = Field(
-        ...,
-        description='The name of the specific connector to which this ConnectorSpecification belongs.',
+    documentation_url: Optional[str] = (
+        'https://datlabs.gitbook.io/datlabs/integrations/sources/aws-redshift'
     )
-    module_name: str = Field(
-        ..., description='Name of the python module for this connector'
-    )
+    name: Literal['AWSRedshift']
+    module_name: Literal['aws_redshift']
     connection_specification: ConnectionSpecificationModel = Field(
         ...,
         description='ConnectorDefinition specific blob. Must be a valid JSON string.',
