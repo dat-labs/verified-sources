@@ -18,7 +18,9 @@ class WebsiteCrawlerSpecification(BaseModel):
     class Config:
         extra = 'allow'
 
-    documentation_url: Optional[AnyUrl] = None
+    documentation_url: Optional[str] = (
+        'https://datlabs.gitbook.io/datlabs/integrations/sources/website-crawler'
+    )
     name: Literal['WebsiteCrawler']
     module_name: Literal['website_crawler']
     connection_specification: ConnectionSpecificationModel = Field(
