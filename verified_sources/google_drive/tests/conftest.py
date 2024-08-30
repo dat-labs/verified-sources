@@ -29,3 +29,17 @@ def valid_catalog_object():
             }
         ]
     }
+
+def pytest_sessionfinish(session, exitstatus):
+    parent = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
+    temp_specs = f'tests{os.path.sep}tmp_spec_model.py'
+    temp_catalog = f'tests{os.path.sep}tmp_catalog_model.py'
+    try:
+        os.remove(f'{parent}{os.path.sep}{temp_specs}')
+    except FileNotFoundError:
+        pass
+    try:
+        os.remove(f'{parent}{os.path.sep}{temp_catalog}')
+    except FileNotFoundError:
+        pass
+        

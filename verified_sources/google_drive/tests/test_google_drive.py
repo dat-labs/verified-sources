@@ -1,5 +1,6 @@
 from verified_sources.google_drive.source import GoogleDrive
-from verified_sources.google_drive.specs import GoogleDriveSpecification
+from verified_sources.google_drive.specs import GoogleDriveSpecification, ConnectionSpecificationModel
+from verified_sources.google_drive.catalog import GoogleDriveCatalog, PdfStream, TxtStream
 from dat_core.pydantic_models import DatConnectionStatus
 from datamodel_code_generator import InputFileType, generate, DataModelType
 from pathlib import Path
@@ -28,9 +29,31 @@ def test_discover(valid_connection_object):
     )
     assert isinstance(_d, dict)
 
-def test_model_files():
+def test_specs_file():
+    temp_specs = f'tests{os.path.sep}tmp_spec_model.py'
+    yml_to_py('specs.yml', temp_specs)
+            
+    from verified_sources.google_drive.tests.tmp_spec_model import GoogleDriveSpecification as GDSpec_temp
+    from verified_sources.google_drive.tests.tmp_spec_model import ConnectionSpecificationModel as ConnSpec_temp
+
+    assert GDSpec_temp.model_fields == GoogleDriveSpecification.model_fields
+    assert ConnSpec_temp.model_fields == ConnectionSpecificationModel.model_fields
+
+def test_catalog_file():
+    temp_catalog = f'tests{os.path.sep}tmp_catalog_model.py'
+    yml_to_py('catalog.yml', temp_catalog)
+
+    from verified_sources.google_drive.tests.tmp_catalog_model import Model as GDCatalog_temp
+    from verified_sources.google_drive.tests.tmp_catalog_model import DocumentStream as PdfStream_temp
+    from verified_sources.google_drive.tests.tmp_catalog_model import DocumentStream1 as TxtStream_temp
+
+    assert GDCatalog_temp.model_fields == GoogleDriveCatalog.model_fields
+    assert PdfStream_temp.model_fields == PdfStream.model_fields
+    assert TxtStream_temp.model_fields == TxtStream.model_fields
+
+def yml_to_py(yml_file: str, output_file: str):
     parent = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
-    with open(f'{parent}{os.path.sep}specs.yml', 'r') as file:
+    with open(f'{parent}{os.path.sep}{yml_file}', 'r') as file:
         datamodel = file.read()
     with TemporaryDirectory() as temporary_directory_name:
         temporary_directory = Path(temporary_directory_name)
@@ -42,24 +65,5 @@ def test_model_files():
             output_model_type=DataModelType.PydanticV2BaseModel,
         )
         model: str = output.read_text()
-        with open(f'{parent}{os.path.sep}tests/tmp_spec_model.py', 'w') as f:
+        with open(f'{parent}{os.path.sep}{output_file}', 'w') as f:
             f.write(model)
-            
-    from verified_sources.google_drive.tests.tmp_spec_model import GoogleDriveSpecification as GDSpec_temp
-    assert compare_class_structures(GDSpec_temp, GoogleDriveSpecification)
-    os.remove(f'{parent}{os.path.sep}tests/tmp_spec_model.py')
-
-
-def compare_class_structures(class1, class2):
-    # Get the list of attributes and methods for both classes
-    class1_attrs = set(dir(class1))
-    class2_attrs = set(dir(class2))
-    
-    # Filter out attributes that are automatically added by Python
-    filtered_attrs_class1 = sorted({attr for attr in class1_attrs if not attr.startswith('__')})
-    filtered_attrs_class2 = sorted({attr for attr in class2_attrs if not attr.startswith('__')})
-    # Compare the sets of attributes and methods
-    if filtered_attrs_class1 == filtered_attrs_class2:
-        return True
-    else:
-        return False
