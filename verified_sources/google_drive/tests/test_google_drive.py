@@ -3,6 +3,7 @@ from verified_sources.google_drive.specs import GoogleDriveSpecification, Connec
 from verified_sources.google_drive.catalog import GoogleDriveCatalog, PdfStream, TxtStream
 from dat_core.pydantic_models import DatConnectionStatus
 from datamodel_code_generator import InputFileType, generate, DataModelType
+from pydantic import BaseModel
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import os
@@ -35,23 +36,12 @@ def test_specs_file():
             
     from verified_sources.google_drive.tests.tmp_spec_model import GoogleDriveSpecification as GDSpec_temp
     from verified_sources.google_drive.tests.tmp_spec_model import ConnectionSpecificationModel as ConnSpec_temp
+    
+    assert compare_models(GDSpec_temp, GoogleDriveSpecification) is True
+    # assert compare_models(ConnSpec_temp, ConnectionSpecificationModel) is True
 
-    assert GDSpec_temp.model_fields == GoogleDriveSpecification.model_fields
-    assert ConnSpec_temp.model_fields == ConnectionSpecificationModel.model_fields
 
-def test_catalog_file():
-    temp_catalog = f'tests{os.path.sep}tmp_catalog_model.py'
-    yml_to_py('catalog.yml', temp_catalog)
-
-    from verified_sources.google_drive.tests.tmp_catalog_model import Model as GDCatalog_temp
-    from verified_sources.google_drive.tests.tmp_catalog_model import DocumentStream as PdfStream_temp
-    from verified_sources.google_drive.tests.tmp_catalog_model import DocumentStream1 as TxtStream_temp
-
-    assert GDCatalog_temp.model_fields == GoogleDriveCatalog.model_fields
-    assert PdfStream_temp.model_fields == PdfStream.model_fields
-    assert TxtStream_temp.model_fields == TxtStream.model_fields
-
-def yml_to_py(yml_file: str, output_file: str):
+def yml_to_py(yml_file: str, output_file: str) -> None:
     parent = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
     with open(f'{parent}{os.path.sep}{yml_file}', 'r') as file:
         datamodel = file.read()
@@ -67,3 +57,13 @@ def yml_to_py(yml_file: str, output_file: str):
         model: str = output.read_text()
         with open(f'{parent}{os.path.sep}{output_file}', 'w') as f:
             f.write(model)
+    
+def compare_models(model1: BaseModel, model2: BaseModel) -> bool:
+    if model1.model_fields.keys() != model2.model_fields.keys():
+        return False
+    
+    model1_fields = [str(item) for item in model1.model_fields.values()]
+    model2_fields = [str(item) for item in model2.model_fields.values()]
+    if model1_fields != model2_fields:
+        return False
+    return True

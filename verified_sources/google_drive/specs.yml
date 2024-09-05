@@ -4,6 +4,8 @@ type: object
 title: GoogleDriveSpecification
 required:
   - connection_specification
+  - name
+  - module_name
 additionalProperties: true
 properties:
   name:
