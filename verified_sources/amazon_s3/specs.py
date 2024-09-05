@@ -35,7 +35,9 @@ class ConnectionSpecificationModel(ConnectionSpecification):
 
 
 class AmazonS3Specification(BaseModel):
-    documentation_url: Optional[AnyUrl] = None
+    documentation_url: Optional[str] = (
+        'https://datlabs.gitbook.io/datlabs/integrations/sources/amazon-s3'
+    )
     name: Literal['AmazonS3']
     module_name: Literal['amazon_s3']
     connection_specification: ConnectionSpecificationModel = Field(
