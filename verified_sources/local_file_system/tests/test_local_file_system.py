@@ -2,8 +2,8 @@ from verified_sources.local_file_system.source import LocalFileSystem
 from verified_sources.local_file_system.catalog import LocalFileSystemCatalog
 from verified_sources.local_file_system.specs import LocalFileSystemSpecification
 from dat_core.pydantic_models import DatConnectionStatus, DatMessage
+from dat_core.loggers import logger
 from conftest import *
-
   
 def test_check(valid_connection_object):
     check_connection_tpl = LocalFileSystem().check(

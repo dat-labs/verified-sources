@@ -12,7 +12,7 @@ from dat_core.connectors.sources.stream import Stream
 from verified_sources.aws_redshift.specs import AWSRedshiftSpecification
 from verified_sources.aws_redshift.catalog import AWSRedshiftTableStream
 from verified_sources.aws_redshift.streams import AWSRedshiftStream
-
+from dat_core.loggers import logger
 
 class AWSRedshift(SourceBase):
     _spec_class = AWSRedshiftSpecification
@@ -34,7 +34,7 @@ class AWSRedshift(SourceBase):
             cursor = connection.cursor()
             cursor.execute("SELECT 1;")
             result = cursor.fetchone()
-            print("Query result:", result)
+            logger.debug("Query result:", result)
             connection.close()
             return True, None
         except Exception as e:
@@ -98,7 +98,7 @@ class AWSRedshift(SourceBase):
                     "columns": [{"name": col[0], "type": col[1]} for col in columns]
                 }
             connection.close()
-            print("Schema dict:", schema_dict)
+            logger.debug("Schema dict:", schema_dict)
             return schema_dict
         except Exception as e:
             raise RuntimeError(f"Failed to discover schema: {str(e)}")

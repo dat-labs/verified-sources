@@ -30,7 +30,7 @@ def test_discover(valid_connection_object):
     )
     # Check if the result is a dictionary
     assert isinstance(_d, dict)
-    print(f"Discovered: {_d}")
+    logger.debug(f"Discovered: {_d}")
     with open('discovered_aws_redshift.json', 'w') as f:
         import json
         f.write(json.dumps(_d, indent=1))
