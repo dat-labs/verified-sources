@@ -3,7 +3,7 @@ from verified_sources.google_drive.specs import GoogleDriveSpecification, Connec
 from verified_sources.google_drive.catalog import GoogleDriveCatalog, PdfStream, TxtStream
 from dat_core.pydantic_models import DatConnectionStatus
 from datamodel_code_generator import InputFileType, generate, DataModelType
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import os
@@ -35,10 +35,31 @@ def test_specs_file():
     yml_to_py('specs.yml', temp_specs)
             
     from verified_sources.google_drive.tests.tmp_spec_model import GoogleDriveSpecification as GDSpec_temp
-    from verified_sources.google_drive.tests.tmp_spec_model import ConnectionSpecificationModel as ConnSpec_temp
-    
+    from verified_sources.google_drive.tests.tmp_spec_model import ConnectionSpecificationModel as ConnSpec
+    class ConnSpec_temp(ConnSpec):
+        dat_name: str = Field(
+            None, description='Name of the actor instance.', title='Name'
+        )
+        client_secret: str = Field(
+        ..., description='client secret for the project',
+            title='Client Secret',
+            json_schema_extra={
+                'ui-opts': {
+                    'masked': True,
+                }
+            }
+        )
+        refresh_token: str = Field(
+        ..., description='refresh token for the project',
+            title='Refresh Token',
+            json_schema_extra={
+                'ui-opts': {
+                    'masked': True,
+                }
+            }
+        )
     assert compare_models(GDSpec_temp, GoogleDriveSpecification) is True
-    # assert compare_models(ConnSpec_temp, ConnectionSpecificationModel) is True
+    assert compare_models(ConnSpec_temp, ConnectionSpecificationModel) is True
 
 
 def yml_to_py(yml_file: str, output_file: str) -> None:
