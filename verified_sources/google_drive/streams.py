@@ -16,7 +16,7 @@ from dat_core.pydantic_models import (
 )
 from dat_core.auth.oauth2_authenticator import BaseOauth2Authenticator
 from verified_sources.common.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
-
+from dat_core.loggers import logger
 class GoogleDriveStream(Stream):
     """
     A stream for reading data from Google Drive.
@@ -77,14 +77,7 @@ class GoogleDriveStream(Stream):
             'fields': 'nextPageToken, files(id, name, createdTime, modifiedTime)',
             'q': f"{mimetype_q} and '{folder_id}' in parents",
         }
-        _log_msg = DatMessage(
-                    type=Type.LOG,
-                    log=DatLogMessage(
-                        level=Level.DEBUG,
-                        message=json.dumps(params)
-                    )
-                )
-        print(_log_msg.model_dump_json(), flush=True)
+        logger.debug(json.dumps(params))
         files = self.list_gdrive_objects(params)
         if cursor_value:
             files = self._slice_based_on_attr(files, _attr='modifiedTime', _value=cursor_value)
@@ -149,14 +142,7 @@ class GoogleDriveStream(Stream):
             files = sorted(files, key=lambda file: file['modifiedTime'])
             return files
         else:
-            _error_msg = DatMessage(
-                    type=Type.LOG,
-                    log=DatLogMessage(
-                        level=Level.TRACE,
-                        message=resp.text
-                    )
-                )
-            print(_error_msg.model_dump_json(), flush=True)
+            logger.trace(resp.text)
 
     def _traverse_folder_path(self, folder_path) -> int:
         """
@@ -191,7 +177,7 @@ class GoogleDriveStream(Stream):
                         message=f"Unable to traverse to path: {folder_path}"
                     )
                 )
-                print(_error_msg.model_dump_json(), flush=True)
+                logger.trace(f"Unable to traverse to path: {folder_path}")
                 # TODO: Raise proper error
                 raise Exception(_error_msg.model_dump_json())
         return folder_id
@@ -220,14 +206,7 @@ class GoogleDriveStream(Stream):
                 temp_file.write(resp.content)
                 yield temp_file.name
             else:
-                _error_msg = DatMessage(
-                    type=Type.LOG,
-                    log=DatLogMessage(
-                        level=Level.TRACE,
-                        message=resp.text
-                    )
-                )
-                print(_error_msg.model_dump_json(), flush=True)
+                logger.trace(resp.text)
         finally:
             if temp_file:
                 os.remove(temp_file.name)

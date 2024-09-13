@@ -61,11 +61,11 @@ class PostgresStream(Stream):
         fields = ", ".join(getattr(configured_stream, 'json_schema', {}).keys())
         if cursor_field and cursor_value is not None:
             query = f"SELECT {fields} FROM {self._schema}.{self._table_name} WHERE {cursor_field} > %s order by {cursor_field} ASC"
-            print(f"Query: {query}")
+            logger.debug(f"Query: {query}")
             cursor.execute(query, (cursor_value,))
         else:
             query = f"SELECT {fields} FROM {self._schema}.{self._table_name}"
-            print(f"Query: {query}")
+            logger.debug(f"Query: {query}")
             cursor.execute(query)
 
         records = cursor.fetchall()

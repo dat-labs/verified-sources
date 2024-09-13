@@ -29,6 +29,7 @@ from dat_core.pydantic_models import (
 from verified_sources.website_crawler.specs import WebsiteCrawlerSpecification
 from verified_sources.website_crawler.streams import URLCrawler
 from verified_sources.website_crawler.catalog import WebsiteCrawlerCatalog
+from dat_core.loggers import logger
 class WebsiteCrawler(SourceBase):
     """
     WebsiteCrawler class for crawling websites and creating URLCrawler streams.
@@ -55,14 +56,7 @@ class WebsiteCrawler(SourceBase):
             resp.raise_for_status()
             result, msg = True, 'URL is working'
         except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError) as exc:
-            _msg = DatMessage(
-                type=Type.LOG,
-                log=DatLogMessage(
-                    level=Level.ERROR,
-                    message=repr(exc)
-                )
-            )
-            print(_msg.model_dump_json())
+            logger.error(repr(exc))
             result, msg = False, 'URL is not working'
 
         return result, msg
@@ -91,7 +85,7 @@ if __name__ == '__main__':
     _specs = WebsiteCrawlerSpecification(
         connection_specification={'site_url': 'https://shopify.dev/docs/api/usage/pagination-graphql'})
     website_crawler = WebsiteCrawler()
-    print(website_crawler.check(_specs))
+    logger.debug(website_crawler.check(_specs))
     _stream = Crawler(
         namespace='my-crawler',
         read_sync_mode=ReadSyncMode.INCREMENTAL,
