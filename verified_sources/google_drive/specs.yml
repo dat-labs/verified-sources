@@ -1,8 +1,11 @@
 # ConnectorSpecification:
 description: Specification of a connector (source/embeddingsgenerator/destination)
 type: object
+title: GoogleDriveSpecification
 required:
   - connection_specification
+  - name
+  - module_name
 additionalProperties: true
 properties:
   name:
@@ -14,7 +17,7 @@ properties:
   protocol_version: 1.0
   documentation_url:
     type: string
-    default: 'https://developers.google.com/drive/api/guides/about-sdk'
+    default: 'https://datlabs.gitbook.io/datlabs/integrations/sources/google-drive'
   changelog_url:
     type: string
     default: 'www.example.com'
