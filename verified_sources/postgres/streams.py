@@ -5,6 +5,7 @@ from dat_core.pydantic_models import (
     DatCatalog, DatDocumentStream,
     DatMessage
 )
+from dat_core.loggers import logger
 from verified_sources.postgres.specs import PostgresSpecification
 
 
@@ -58,6 +59,7 @@ class PostgresStream(Stream):
         """
         cursor = self.connection.cursor()
         cursor_field = getattr(configured_stream, 'cursor_field', None)
+        upsert_keys = getattr(configured_stream, 'upsert_keys', [])
         fields = ", ".join(getattr(configured_stream, 'json_schema', {}).keys())
         if cursor_field and cursor_value is not None:
             query = f"SELECT {fields} FROM {self._schema}.{self._table_name} WHERE {cursor_field} > %s order by {cursor_field} ASC"
@@ -75,16 +77,16 @@ class PostgresStream(Stream):
                 zip([column.name for column in cursor.description], record))
             record_str = ", ".join(
                 [f"{k}: {v}" for k, v in record_dict.items()])
-
-            # Update cursor_value to the current record's cursor field value if cursor_field is present
             extra_metadata = {}
             if cursor_field:
                 cursor_value = record_dict[cursor_field]
                 extra_metadata = {cursor_field: cursor_value}
+            if upsert_keys:
+                extra_metadata["dat_record_id"] = f"{'_'.join(record_dict[upsert_keys])}"
             yield self.as_record_message(
                 configured_stream=configured_stream,
                 doc_chunk=record_str,
-                data_entity=f"{configured_stream.name}",
+                data_entity=f"{self._schema}_{self._table_name}",
                 extra_metadata=extra_metadata,
             )
 

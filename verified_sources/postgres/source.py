@@ -34,7 +34,7 @@ class Postgres(SourceBase):
             cursor = connection.cursor()
             cursor.execute("SELECT 1;")
             result = cursor.fetchone()
-            logger.debug("Query result:", result)
+            logger.debug(f"Query result: {result}")
             connection.close()
             return True, None
         except Exception as e:
@@ -94,11 +94,29 @@ class Postgres(SourceBase):
                 """, (table_schema, table_name))
 
                 columns = cursor.fetchall()
+                # Query to get primary keys for each table
+                cursor.execute("""
+                    SELECT kcu.column_name
+                    FROM information_schema.table_constraints tc
+                    JOIN information_schema.key_column_usage kcu
+                    ON tc.constraint_name = kcu.constraint_name
+                    AND tc.table_schema = kcu.table_schema
+                    WHERE tc.constraint_type = 'PRIMARY KEY'
+                    AND tc.table_schema = %s
+                    AND tc.table_name = %s;
+                """, (table_schema, table_name))
+
+                primary_keys = [row[0] for row in cursor.fetchall()]
+
                 schema_dict[f"{table_schema}.{table_name}"] = {
-                    "columns": [{"name": col[0], "type": col[1]} for col in columns]
+                    "columns": [{"name": col[0], "type": col[1]} for col in columns],
+                    "primary_keys": primary_keys
                 }
+                # schema_dict[f"{table_schema}.{table_name}"] = {
+                #     "columns": [{"name": col[0], "type": col[1]} for col in columns]
+                # }
             connection.close()
-            logger.debug("Schema dict:", schema_dict)
+            logger.debug(f"Schema dict: {schema_dict}")
             return schema_dict
         except Exception as e:
             raise RuntimeError(f"Failed to discover schema: {str(e)}")
