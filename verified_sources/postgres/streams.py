@@ -82,7 +82,7 @@ class PostgresStream(Stream):
                 cursor_value = record_dict[cursor_field]
                 extra_metadata = {cursor_field: cursor_value}
             if upsert_keys:
-                extra_metadata["dat_record_id"] = f"{'_'.join(record_dict[upsert_keys])}"
+                extra_metadata["dat_record_id"] = '_'.join([str(record_dict[u_k]) for u_k in upsert_keys])
             yield self.as_record_message(
                 configured_stream=configured_stream,
                 doc_chunk=record_str,
