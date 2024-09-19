@@ -78,9 +78,10 @@ class PostgresStream(Stream):
             record_str = ", ".join(
                 [f"{k}: {v}" for k, v in record_dict.items()])
             extra_metadata = {}
+            extra_data = {}
             if cursor_field:
                 cursor_value = record_dict[cursor_field]
-                extra_metadata = {cursor_field: cursor_value}
+                extra_data = {cursor_field: cursor_value} #It should not become part of metadata
             if upsert_keys:
                 extra_metadata["dat_record_id"] = '_'.join([str(record_dict[u_k]) for u_k in upsert_keys])
             yield self.as_record_message(
@@ -88,6 +89,7 @@ class PostgresStream(Stream):
                 doc_chunk=record_str,
                 data_entity=f"{self._schema}_{self._table_name}",
                 extra_metadata=extra_metadata,
+                extra_data=extra_data
             )
 
         cursor.close()
