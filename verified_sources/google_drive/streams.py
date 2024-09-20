@@ -16,6 +16,8 @@ from dat_core.pydantic_models import (
 )
 from dat_core.auth.oauth2_authenticator import BaseOauth2Authenticator
 from verified_sources.common.doc_splitters.factory import doc_splitter_factory, DocLoaderType, TextSplitterType
+from dat_core.loggers import logger
+
 
 class GoogleDriveStream(Stream):
     """
@@ -72,26 +74,24 @@ class GoogleDriveStream(Stream):
             Generator[DatMessage, Any, Any]: A generator of DatMessage instances.
         """
         folder_id = self._traverse_folder_path(configured_stream.dir_uris[0])
-        mimetype_q = ' or '.join([f"mimeType='{_mt}'" for _mt in self.__supported_mimetypes__])
+        mimetype_q = ' or '.join(
+            [f"mimeType='{_mt}'" for _mt in self.__supported_mimetypes__])
         params = {
             'fields': 'nextPageToken, files(id, name, createdTime, modifiedTime)',
             'q': f"{mimetype_q} and '{folder_id}' in parents",
         }
-        _log_msg = DatMessage(
-                    type=Type.LOG,
-                    log=DatLogMessage(
-                        level=Level.DEBUG,
-                        message=json.dumps(params)
-                    )
-                )
-        print(_log_msg.model_dump_json(), flush=True)
+        logger.debug(json.dumps(params))
         files = self.list_gdrive_objects(params)
         if cursor_value:
-            files = self._slice_based_on_attr(files, _attr='modifiedTime', _value=cursor_value)
+            files = self._slice_based_on_attr(
+                files, _attr='modifiedTime', _value=cursor_value)
         for file in files:
             with self.download_gdrive_file(file_id=file['id']) as temp_file:
-                data_entity=f'{configured_stream.dir_uris[0]}/{file["name"]}'
-                extra_metadata = {'updated_at': file['modifiedTime'], 'created_at': file['createdTime']}
+                data_entity = f'{configured_stream.dir_uris[0]}/{file["name"]}'
+                extra_metadata = {'updated_at': file['modifiedTime'],
+                                  'created_at': file['createdTime'],
+                                  'dat_record_id': data_entity
+                                  }
                 _doc_splitter = doc_splitter_factory.create(
                     loader_key=self._doc_loader.value,
                     splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY.value,
@@ -109,8 +109,8 @@ class GoogleDriveStream(Stream):
                         data_entity=data_entity,
                         dat_last_modified=file['modifiedTime'],
                         extra_metadata=extra_metadata
-                        )
-    
+                    )
+
     def _slice_based_on_attr(self, _list: List, _attr: str, _value: Any) -> List:
         """
         Given a general list of dicts, slice based on a specific key:value pair
@@ -123,7 +123,7 @@ class GoogleDriveStream(Stream):
                 _slice_from = _index
                 break
             _index += 1
-        
+
         return _list[_slice_from:]
 
     def list_gdrive_objects(self, params) -> List[Dict]:
@@ -137,7 +137,8 @@ class GoogleDriveStream(Stream):
             List[Dict]: A list of objects in Google Drive.
         """
         headers = self.auth.get_auth_header()
-        resp = requests.get('https://www.googleapis.com/drive/v3/files', headers=headers, params=params)
+        resp = requests.get(
+            'https://www.googleapis.com/drive/v3/files', headers=headers, params=params)
         if resp.status_code == 200:
             files = resp.json().get('files', [])
             for file in files:
@@ -149,14 +150,7 @@ class GoogleDriveStream(Stream):
             files = sorted(files, key=lambda file: file['modifiedTime'])
             return files
         else:
-            _error_msg = DatMessage(
-                    type=Type.LOG,
-                    log=DatLogMessage(
-                        level=Level.TRACE,
-                        message=resp.text
-                    )
-                )
-            print(_error_msg.model_dump_json(), flush=True)
+            logger.trace(resp.text)
 
     def _traverse_folder_path(self, folder_path) -> int:
         """
@@ -191,7 +185,7 @@ class GoogleDriveStream(Stream):
                         message=f"Unable to traverse to path: {folder_path}"
                     )
                 )
-                print(_error_msg.model_dump_json(), flush=True)
+                logger.trace(f"Unable to traverse to path: {folder_path}")
                 # TODO: Raise proper error
                 raise Exception(_error_msg.model_dump_json())
         return folder_id
@@ -214,20 +208,14 @@ class GoogleDriveStream(Stream):
         }
         temp_file = None
         try:
-            resp = requests.get(f'https://www.googleapis.com/drive/v3/files/{file_id}', headers=headers, params=params)
+            resp = requests.get(
+                f'https://www.googleapis.com/drive/v3/files/{file_id}', headers=headers, params=params)
             if resp.status_code == 200:
                 temp_file = NamedTemporaryFile(mode='wb+', delete=False)
                 temp_file.write(resp.content)
                 yield temp_file.name
             else:
-                _error_msg = DatMessage(
-                    type=Type.LOG,
-                    log=DatLogMessage(
-                        level=Level.TRACE,
-                        message=resp.text
-                    )
-                )
-                print(_error_msg.model_dump_json(), flush=True)
+                logger.trace(resp.text)
         finally:
             if temp_file:
                 os.remove(temp_file.name)

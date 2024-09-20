@@ -105,5 +105,6 @@ class URLCrawler(Stream):
                 configured_stream=configured_stream,
                 doc_chunk=_doc_chunk,
                 data_entity=self._config.connection_specification.site_url,
-                extra_metadata={'site_url': self._config.connection_specification.site_url}
+                extra_metadata={'site_url': self._config.connection_specification.site_url,
+                                'dat_record_id': self._config.connection_specification.site_url}
             )

@@ -12,12 +12,12 @@ from dat_core.pydantic_models import ConnectionSpecification
 
 class ConnectionSpecificationModel(ConnectionSpecification):
     host: str = Field(
-        None, description='Hostname of the Postgres server', title='Host'
+        None, description='Hostname of the AWSRedshift server', title='Host'
     )
     port: int = Field(
-        5432, description='Port of the Postgres server', title='Port'
+        5439, description='Port of the AWSRedshift server', title='Port'
     )
-    dbname: str = Field(
+    database: str = Field(
         None, description='Name of the database', title='Database Name'
     )
     user: str = Field(
@@ -38,12 +38,12 @@ class ConnectionSpecificationModel(ConnectionSpecification):
     )
 
 
-class PostgresSpecification(BaseModel):
+class AWSRedshiftSpecification(BaseModel):
     documentation_url: Optional[str] = (
-        'https://datlabs.gitbook.io/datlabs/integrations/sources/postgres'
+        'https://datlabs.gitbook.io/datlabs/integrations/sources/aws-redshift'
     )
-    name: Literal['Postgres']
-    module_name: Literal['postgres']
+    name: Literal['AWSRedshift']
+    module_name: Literal['aws_redshift']
     connection_specification: ConnectionSpecificationModel = Field(
         ...,
         description='ConnectorDefinition specific blob. Must be a valid JSON string.',

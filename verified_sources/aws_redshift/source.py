@@ -6,21 +6,21 @@ from dat_core.pydantic_models import (
     ConnectorSpecification
 )
 from pydantic import Field, create_model
-import psycopg
+import redshift_connector
 from dat_core.connectors.sources.base import SourceBase
 from dat_core.connectors.sources.stream import Stream
-from verified_sources.postgres.specs import PostgresSpecification
-from verified_sources.postgres.catalog import PostgresTableStream
-from verified_sources.postgres.streams import PostgresStream
+from verified_sources.aws_redshift.specs import AWSRedshiftSpecification
+from verified_sources.aws_redshift.catalog import AWSRedshiftTableStream
+from verified_sources.aws_redshift.streams import AWSRedshiftStream
 from dat_core.loggers import logger
 
-class Postgres(SourceBase):
-    _spec_class = PostgresSpecification
+class AWSRedshift(SourceBase):
+    _spec_class = AWSRedshiftSpecification
     _has_dynamic_streams = True
 
-    def check_connection(self, config: PostgresSpecification) -> Tuple[bool, Optional[Any]]:
+    def check_connection(self, config: AWSRedshiftSpecification) -> Tuple[bool, Optional[Any]]:
         """
-        Checks the connection to Postgres using the provided configuration.
+        Checks the connection to AWSRedshift using the provided configuration.
 
         Args:
             config (ConnectorSpecification): The configuration specifying the connection details.
@@ -34,36 +34,36 @@ class Postgres(SourceBase):
             cursor = connection.cursor()
             cursor.execute("SELECT 1;")
             result = cursor.fetchone()
-            logger.debug(f"Query result: {result}")
+            logger.debug("Query result:", result)
             connection.close()
             return True, None
         except Exception as e:
             return False, str(e)
 
-    def create_connection(self, config) -> psycopg.connection:
+    def create_connection(self, config) -> redshift_connector.Connection:
         """
-        Creates a connection to the Postgres database.
+        Creates a connection to the AWSRedshift database.
         
         Args:
-            config (PostgresSpecification): The Postgres configuration object.
+            config (AWSRedshiftSpecification): The AWSRedshift configuration object.
         
         Returns:
-            psycopg.connection: The connection object.
+            redshift_connector.Connection: The connection object.
         """
-        return psycopg.connect(
-            conninfo=(
-                f"host={config.connection_specification.host} port={config.connection_specification.port} "
-                f"dbname={config.connection_specification.dbname} user={config.connection_specification.user} "
-                f"password={config.connection_specification.password}"
-            )
+        return redshift_connector.connect(
+            host=config.connection_specification.host,
+            database=config.connection_specification.database,
+            port=config.connection_specification.port,
+            user=config.connection_specification.user,
+            password=config.connection_specification.password,
         )
 
-    def _get_tables(self, config: PostgresSpecification) -> Mapping[str, Any]:
+    def _get_tables(self, config: AWSRedshiftSpecification) -> Mapping[str, Any]:
         """
         Get all tables and their schemas from the specified schemas.
 
         Args:
-            config (PostgresSpecification): The Postgres configuration object.
+            config (AWSRedshiftSpecification): The AWSRedshift configuration object.
         
         Returns:
             Mapping[str, Any]: A dictionary containing the tables and their schemas.
@@ -94,29 +94,11 @@ class Postgres(SourceBase):
                 """, (table_schema, table_name))
 
                 columns = cursor.fetchall()
-                # Query to get primary keys for each table
-                cursor.execute("""
-                    SELECT kcu.column_name
-                    FROM information_schema.table_constraints tc
-                    JOIN information_schema.key_column_usage kcu
-                    ON tc.constraint_name = kcu.constraint_name
-                    AND tc.table_schema = kcu.table_schema
-                    WHERE tc.constraint_type = 'PRIMARY KEY'
-                    AND tc.table_schema = %s
-                    AND tc.table_name = %s;
-                """, (table_schema, table_name))
-
-                primary_keys = [row[0] for row in cursor.fetchall()]
-
                 schema_dict[f"{table_schema}.{table_name}"] = {
-                    "columns": [{"name": col[0], "type": col[1]} for col in columns],
-                    "primary_keys": primary_keys
+                    "columns": [{"name": col[0], "type": col[1]} for col in columns]
                 }
-                # schema_dict[f"{table_schema}.{table_name}"] = {
-                #     "columns": [{"name": col[0], "type": col[1]} for col in columns]
-                # }
             connection.close()
-            logger.debug(f"Schema dict: {schema_dict}")
+            logger.debug("Schema dict:", schema_dict)
             return schema_dict
         except Exception as e:
             raise RuntimeError(f"Failed to discover schema: {str(e)}")
@@ -143,7 +125,7 @@ class Postgres(SourceBase):
                 description='The JSON schema for the document stream.',
                 json_schema_extra={'ui-opts': {'hidden': True}}
             )),
-            __base__=PostgresTableStream
+            __base__=AWSRedshiftTableStream
         )
 
     def map_column_type_to_json_schema_type(self, column_type) -> str:
@@ -210,10 +192,10 @@ class Postgres(SourceBase):
         streams = []
 
         for index, (schema_table, cols) in enumerate(tables.items(), start=1):
-            stream_name = f"PostgresStream{index}"
+            stream_name = f"AWSRedshiftStream{index}"
             StreamClass = type(
                 stream_name,
-                (PostgresStream,),
+                (AWSRedshiftStream,),
                 {}
             )
             _schema_table = schema_table.split('.')

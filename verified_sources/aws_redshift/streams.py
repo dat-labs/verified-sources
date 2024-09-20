@@ -1,23 +1,23 @@
 from typing import Any, Generator
-import psycopg
+import redshift_connector
 from dat_core.connectors.sources.stream import Stream
 from dat_core.pydantic_models import (
     DatCatalog, DatDocumentStream,
     DatMessage
 )
+from verified_sources.aws_redshift.specs import AWSRedshiftSpecification
 from dat_core.loggers import logger
-from verified_sources.postgres.specs import PostgresSpecification
 
 
-class PostgresStream(Stream):
+class AWSRedshiftStream(Stream):
     """
-    postgresStream0 class for crawling and processing URLs.
+    aws_redshiftStream0 class for crawling and processing URLs.
 
     Attributes:
-        _name (str): The name of the postgresStream0 stream ('url_crawler').
+        _name (str): The name of the aws_redshiftStream0 stream ('url_crawler').
 
     Methods:
-        __init__: Initializes a new postgresStream0 object.
+        __init__: Initializes a new aws_redshiftStream0 object.
         read_records: Reads records from the configured stream and yields DatMessage objects.
     """
 
@@ -25,20 +25,20 @@ class PostgresStream(Stream):
     _schema = ""
     _table_name = ""
 
-    def __init__(self, config: PostgresSpecification) -> None:
+    def __init__(self, config: AWSRedshiftSpecification) -> None:
         """
-        Initializes a new postgresStream0 object.
+        Initializes a new aws_redshiftStream0 object.
 
         Parameters:
-            config (PostgresSpecification): The configuration object for URL crawling.
+            config (AWSRedshiftSpecification): The configuration object for URL crawling.
         """
         self._config = config
-        self.connection = psycopg.connect(
-            conninfo=(
-                f"host={config.connection_specification.host} port={config.connection_specification.port} "
-                f"dbname={config.connection_specification.dbname} user={config.connection_specification.user} "
-                f"password={config.connection_specification.password}"
-            )
+        self.connection = redshift_connector.connect(
+            host=config.connection_specification.host,
+            database=config.connection_specification.database,
+            port=config.connection_specification.port,
+            user=config.connection_specification.user,
+            password=config.connection_specification.password,
         )
 
     def read_records(self,

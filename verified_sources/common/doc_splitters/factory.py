@@ -27,7 +27,7 @@ from langchain_community.document_loaders import (
 
 )
 from llama_index.readers.s3 import S3Reader
-from llama_index.readers.web import WholeSiteReader
+from llama_index.readers.web import WholeSiteReader, BeautifulSoupWebReader
 from verified_sources.common.doc_splitters.base_splitter import BaseSplitter
 
 
@@ -44,6 +44,8 @@ class DocLoaderType(Enum):
     WHOLE_SITE_READER = 'WHOLE_SITE_READER'
     S3_DIR_LOADER = 'S3_DIR_LOADER'
     MARKDOWN = 'MARKDOWN_LOADER'
+    BEAUTIFUL_SOUP = 'BEAUTIFUL_SOUP'
+
 class TextSplitterType(Enum):
     SPLIT_BY_HTML_HEADER = 'SPLIT_BY_HTML_HEADER'
     SPLIT_BY_CHARACTER = 'SPLIT_BY_CHARACTER'
@@ -142,8 +144,8 @@ doc_splitter_factory.register_loader(DocLoaderType.CSV, CSVLoader)
 doc_splitter_factory.register_loader(DocLoaderType.GOOGLE_DRIVE, GoogleDriveLoader)
 doc_splitter_factory.register_loader(DocLoaderType.WHOLE_SITE_READER, WholeSiteReader)
 doc_splitter_factory.register_loader(DocLoaderType.S3_DIR_LOADER, S3Reader)
-doc_splitter_factory.register_loader(
-    DocLoaderType.MARKDOWN, UnstructuredMarkdownLoader)
+doc_splitter_factory.register_loader(DocLoaderType.MARKDOWN, UnstructuredMarkdownLoader)
+doc_splitter_factory.register_loader(DocLoaderType.BEAUTIFUL_SOUP, BeautifulSoupWebReader)
 
 
 

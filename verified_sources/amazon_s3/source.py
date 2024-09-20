@@ -10,6 +10,7 @@ from verified_sources.common.doc_splitters.factory import doc_splitter_factory, 
 from verified_sources.amazon_s3.streams import S3TxtStream, S3PdfStream
 from verified_sources.amazon_s3.specs import AmazonS3Specification
 from verified_sources.amazon_s3.catalog import AmazonS3Catalog
+from dat_core.loggers import logger
 
 
 class AmazonS3(SourceBase):
@@ -35,7 +36,7 @@ class AmazonS3(SourceBase):
                         message=obj['Key']
                     )
                 )
-                print(_msg.model_dump_json(), flush=True)
+                logger.info(_msg.model_dump_json(), flush=True)
                 break
             connected, message = True, 'Connection establised'
 
@@ -47,7 +48,7 @@ class AmazonS3(SourceBase):
                     message=repr(exc)
                 )
             )
-            print(_msg.model_dump_json(), flush=True)
+            logger.error(_msg.model_dump_json(), flush=True)
 
         return connected, message
 

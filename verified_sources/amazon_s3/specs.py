@@ -11,10 +11,20 @@ from dat_core.pydantic_models import ConnectionSpecification
 
 class ConnectionSpecificationModel(ConnectionSpecification):
     aws_access_key: str = Field(
-        ..., description='AWS access key for the project', title='AWS access key'
+        ..., description='AWS access key for the project', title='AWS access key',
+        json_schema_extra={
+            'ui-opts': {
+                'masked': True,
+            }
+        }
     )
     aws_secret_key: str = Field(
-        ..., description='AWS secret key for the project', title='AWS secret key'
+        ..., description='AWS secret key for the project', title='AWS secret key',
+        json_schema_extra={
+            'ui-opts': {
+                'masked': True,
+            }
+        }
     )
     bucket_name: str = Field(
         ..., description='Bucket name for the project', title='Bucket name'
@@ -25,7 +35,9 @@ class ConnectionSpecificationModel(ConnectionSpecification):
 
 
 class AmazonS3Specification(BaseModel):
-    documentation_url: Optional[AnyUrl] = None
+    documentation_url: Optional[str] = (
+        'https://datlabs.gitbook.io/datlabs/integrations/sources/amazon-s3'
+    )
     name: Literal['AmazonS3']
     module_name: Literal['amazon_s3']
     connection_specification: ConnectionSpecificationModel = Field(

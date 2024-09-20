@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any, Optional, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from dat_core.pydantic_models import ConnectionSpecification
 
 
@@ -16,16 +16,29 @@ class ConnectionSpecificationModel(ConnectionSpecification):
         ..., description='client id for the project', title='Client ID'
     )
     client_secret: str = Field(
-        ..., description='client secret for the project', title='Client Secret'
+        ..., description='client secret for the project',
+        title='Client Secret',
+        json_schema_extra={
+            'ui-opts': {
+                'masked': True,
+            }
+        }
     )
     refresh_token: str = Field(
-        ..., description='refresh token for the project', title='Refresh Token'
+        ..., description='refresh token for the project',
+        title='Refresh Token',
+        json_schema_extra={
+            'ui-opts': {
+                'masked': True,
+            }
+        }
     )
 
 
 class GoogleDriveSpecification(BaseModel):
-    class Config:
-        extra = 'allow'
+    model_config = ConfigDict(
+        extra='allow',
+    )
 
     name: Literal['GoogleDrive']
     module_name: Literal['google_drive']

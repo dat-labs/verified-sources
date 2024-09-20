@@ -11,7 +11,7 @@ from dat_core.pydantic_models import (
 from verified_sources.google_drive.streams import GDrivePdfStream, GDriveTxtStream
 from verified_sources.google_drive.specs import GoogleDriveSpecification
 from verified_sources.google_drive.catalog import GoogleDriveCatalog
-
+from dat_core.loggers import logger
 class GoogleDrive(SourceBase):
     """
     GoogleDrive as a source
@@ -43,7 +43,7 @@ class GoogleDrive(SourceBase):
             params = {
                 'fields': 'nextPageToken, files(id, name)'
             }
-            # print(auth.get_auth_header())
+            # logger.debug(auth.get_auth_header())
             resp = requests.get('https://www.googleapis.com/drive/v3/files', headers=auth.get_auth_header(), params=params)
             if resp.status_code == 200:
                 _log_msg = DatMessage(
@@ -53,7 +53,7 @@ class GoogleDrive(SourceBase):
                         message=resp.text
                     )
                 )
-                print(_log_msg.model_dump_json(), flush=True)
+                logger.debug(_log_msg.model_dump_json(), flush=True)
                 conn_status = True
                 message = 'List files successful'
             else:
@@ -64,7 +64,7 @@ class GoogleDrive(SourceBase):
                         message=resp.text
                     )
                 )
-                print(_error_msg.model_dump_json(), flush=True)
+                logger.error(_error_msg.model_dump_json(), flush=True)
                 conn_status = True
                 message = 'List files unsuccessful'
 
@@ -79,7 +79,7 @@ class GoogleDrive(SourceBase):
                         message=message
                     )
                 )
-            print(_error_msg.model_dump_json(), flush=True)
+            logger.error(_error_msg.model_dump_json(), flush=True)
 
         return conn_status, message
     
@@ -102,7 +102,7 @@ if __name__ == '__main__':
         'refresh_token': os.environ.get('GOOGLE_DRIVE_REFRESH_TOKEN'),
     }
     config = ConnectorSpecification(name='GoogleDrive', connection_specification=conn_details, module_name='google_drive')
-    # print(gdrive.check(config=config))
+    # logger.debug(gdrive.check(config=config))
     pdf_stream = PdfStream(
                 name='pdf',
                 namespace='my-gdrive-pdf-files',
