@@ -81,7 +81,8 @@ class S3BaseStream(Stream):
                         configured_stream=configured_stream,
                         doc_chunk=_doc_chunk,
                         data_entity=obj['Key'],
-                        dat_last_modified=obj['LastModified'].timestamp()
+                        dat_last_modified=obj['LastModified'].timestamp(),
+                        extra_metadata={"dat_record_id": obj['Key']}
                     )
     
     def _filter_objects_to_process(self,
