@@ -1,4 +1,4 @@
-name: Run Automated tests
+name: Run-Pytests
 
 on:
   pull_request:
