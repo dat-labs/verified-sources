@@ -30,7 +30,7 @@ jobs:
       
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip setuptool wheel poetry pytest
+          python -m pip install --upgrade pip setuptools wheel poetry pytest
           poetry lock
           poetry install
       
