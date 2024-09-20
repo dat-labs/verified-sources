@@ -1,0 +1,27 @@
+type: object
+properties:
+  document_streams:
+    type: array
+    items:
+      - type: object
+        allOf:
+        - "$ref": "https://raw.githubusercontent.com/dat-labs/dat-core/main/dat_core/specs/DatDocumentStream.yml"
+        required:
+          - folder_path
+          - file_name
+          - file_type
+        properties:
+          file_name:
+            description: "Name Of The File"
+            type: string
+            title: "File Name"
+            order: 1
+          folder_path:
+            type: string
+            title: "Directory Paths"
+            order: 2
+          file_type:
+            type: string
+            title: "Type of File"
+            enum: [pdf,txt,csv,html,md,log]
+            order: 3
