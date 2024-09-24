@@ -2,6 +2,7 @@ name: Run-Pytests
 
 on:
   pull_request:
+    types: [review_requested]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
