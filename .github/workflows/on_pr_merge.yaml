@@ -36,4 +36,4 @@ jobs:
           poetry add pytest
       
       - name: Run tests
-        run: poetry run pytest --ignore verified_sources/postgres # Has some dependency problems
+        run: poetry run pytest
