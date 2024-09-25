@@ -22,6 +22,7 @@ def valid_catalog_object():
             'namespace': 'postgres_pytest_actor',
             'read_sync_mode': 'FULL_REFRESH',
             'write_sync_mode': 'APPEND',
+            'upsert_keys': ['id'],
             'advanced': {
                 'splitter_settings': {
                     'strategy': 'SPLIT_BY_CHARACTER'
@@ -60,6 +61,7 @@ def valid_incremental_catalog_object():
             'read_sync_mode': 'INCREMENTAL',
             'cursor_field': 'updated_at',
             'write_sync_mode': 'APPEND',
+            'upsert_keys': ['id'],
             'advanced': {
                 'splitter_settings': {
                     'strategy': 'SPLIT_BY_CHARACTER'

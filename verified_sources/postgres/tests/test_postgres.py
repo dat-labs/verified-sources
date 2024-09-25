@@ -6,7 +6,7 @@ from dat_core.pydantic_models import (
     DatConnectionStatus,
     DatMessage, StreamState
 )
-
+from dat_core.loggers import logger
 
 def test_check(valid_connection_object):
     check_connection_tpl = Postgres().check(
