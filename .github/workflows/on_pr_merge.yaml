@@ -30,6 +30,9 @@ jobs:
           python-versions: ${{ matrix.python-version }}
       
       - name: Install dependencies
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}
         run: |
           python -m pip install --upgrade pip setuptools wheel poetry
           poetry lock && poetry install
