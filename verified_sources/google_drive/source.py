@@ -46,25 +46,11 @@ class GoogleDrive(SourceBase):
             # logger.debug(auth.get_auth_header())
             resp = requests.get('https://www.googleapis.com/drive/v3/files', headers=auth.get_auth_header(), params=params)
             if resp.status_code == 200:
-                _log_msg = DatMessage(
-                    type=Type.LOG,
-                    log=DatLogMessage(
-                        level=Level.DEBUG,
-                        message=resp.text
-                    )
-                )
-                logger.debug(_log_msg.model_dump_json(), flush=True)
+                logger.debug(resp.text)
                 conn_status = True
                 message = 'List files successful'
             else:
-                _error_msg = DatMessage(
-                    type=Type.LOG,
-                    log=DatLogMessage(
-                        level=Level.TRACE,
-                        message=resp.text
-                    )
-                )
-                logger.error(_error_msg.model_dump_json(), flush=True)
+                logger.error(resp.text)
                 conn_status = True
                 message = 'List files unsuccessful'
 
@@ -72,14 +58,7 @@ class GoogleDrive(SourceBase):
             # TODO: Raise or log proper exception
             conn_status = False
             message = repr(exc)
-            _error_msg = DatMessage(
-                    type=Type.LOG,
-                    log=DatLogMessage(
-                        level=Level.ERROR,
-                        message=message
-                    )
-                )
-            logger.error(_error_msg.model_dump_json(), flush=True)
+            logger.error(message)
 
         return conn_status, message
     

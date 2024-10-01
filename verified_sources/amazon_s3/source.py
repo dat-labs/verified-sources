@@ -29,26 +29,12 @@ class AmazonS3(SourceBase):
             )
             for obj in s3_client.list_objects_v2(
                     Bucket=config.connection_specification.bucket_name, MaxKeys=5)['Contents']:
-                _msg = DatMessage(
-                    type=Type.LOG,
-                    log=DatLogMessage(
-                        level=Level.INFO,
-                        message=obj['Key']
-                    )
-                )
-                logger.info(_msg.model_dump_json(), flush=True)
+                logger.info(obj['Key'])
                 break
             connected, message = True, 'Connection establised'
 
         except Exception as exc:
-            _msg = DatMessage(
-                type=Type.LOG,
-                log=DatLogMessage(
-                    level=Level.ERROR,
-                    message=repr(exc)
-                )
-            )
-            logger.error(_msg.model_dump_json(), flush=True)
+            logger.error(repr(exc))
 
         return connected, message
 

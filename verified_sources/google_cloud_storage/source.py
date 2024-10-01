@@ -11,7 +11,7 @@ from google.cloud import storage
 from dat_core.pydantic_models import (
     ConnectorSpecification, DatConnectionStatus, DatMessage, DatLogMessage, Level, Type
 )
-
+from dat_core.loggers import logger
 
 class GoogleCloudStorage(SourceBase):
     _spec_class = GoogleCloudStorageSpecification
@@ -38,18 +38,11 @@ class GoogleCloudStorage(SourceBase):
             self.bucket_client = storage_client.get_bucket(
                 config.connection_specification.bucket_name)
             bucket_list = storage_client.list_buckets()
-            print(bucket_list)
+            logger.debug(bucket_list)
         except Exception as exc:
             conn_status = False
             message = repr(exc)
-            _error_msg = DatMessage(
-                type=Type.LOG,
-                log=DatLogMessage(
-                    level=Level.ERROR,
-                    message=message
-                )
-            )
-            print(_error_msg.model_dump_json(), flush=True)
+            logger.error(message)
 
         return conn_status, message
 
