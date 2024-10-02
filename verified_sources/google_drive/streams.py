@@ -73,21 +73,29 @@ class GoogleDriveStream(Stream):
         Yields:
             Generator[DatMessage, Any, Any]: A generator of DatMessage instances.
         """
-        folder_id = self._traverse_folder_path(configured_stream.dir_uris[0])
-        mimetype_q = ' or '.join(
-            [f"mimeType='{_mt}'" for _mt in self.__supported_mimetypes__])
-        params = {
-            'fields': 'nextPageToken, files(id, name, createdTime, modifiedTime)',
-            'q': f"{mimetype_q} and '{folder_id}' in parents",
-        }
-        logger.debug(json.dumps(params))
-        files = self.list_gdrive_objects(params)
+        files = list()
+        parent = dict()
+        for dir_uri in configured_stream.dir_uris:
+            folder_id = self._traverse_folder_path(dir_uri)
+            mimetype_q = ' or '.join(
+                [f"mimeType='{_mt}'" for _mt in self.__supported_mimetypes__])
+            params = {
+                'fields': 'nextPageToken, files(id, name, createdTime, modifiedTime)',
+                'q': f"{mimetype_q} and '{folder_id}' in parents",
+                }
+            logger.debug(json.dumps(params))
+            temp_files = self.list_gdrive_objects(params)
+            files += temp_files
+            for file in temp_files:
+                parent[file['id']] = dir_uri
+
         if cursor_value:
             files = self._slice_based_on_attr(
                 files, _attr='modifiedTime', _value=cursor_value)
+
         for file in files:
             with self.download_gdrive_file(file_id=file['id']) as temp_file:
-                data_entity = f'{configured_stream.dir_uris[0]}/{file["name"]}'
+                data_entity = f'{parent[file["id"]]}/{file["name"]}'
                 extra_metadata = {'updated_at': file['modifiedTime'],
                                   'created_at': file['createdTime'],
                                   'dat_record_id': data_entity
