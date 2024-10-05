@@ -19,15 +19,22 @@ def valid_catalog_object():
                 'dir_uris': ['bak/MySQL/STAGING/for-dat-gdrive-test', ],
                 'read_sync_mode': 'INCREMENTAL',
                 'write_sync_mode': 'APPEND',
-            },
-            {
-                'name': 'txt',
-                'namespace': 'pytest',
-                'dir_uris': ['bak/MySQL/STAGING/for-dat-gdrive-test', ],
-                'read_sync_mode': 'INCREMENTAL',
-                'write_sync_mode': 'APPEND',
+                'advanced': {
+                    'splitter_settings': {
+                        'splitter_settings': 'SPLIT_BY_CHARACTER'
+                    }
+                }
             }
         ]
+    }
+
+@fixture
+def valid_stream_state_object():
+    import datetime
+    yield {
+        'data': {
+            'dat_last_modified': int((datetime.datetime.now() - datetime.timedelta(days=1)).timestamp())
+        },
     }
 
 def pytest_sessionfinish(session, exitstatus):

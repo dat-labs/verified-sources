@@ -111,7 +111,8 @@ class CrawlerSitemap(Stream):
         # Uncomment this to write the links to a file
         # with open('links.txt', 'w') as f:
         #     f.write('\n'.join(links))
-        # return list(links)
+
+        return list(links)
     
     def get_sitemap(self, url: str) -> Optional[str]:
         parsed_url = urlparse(str(url))
