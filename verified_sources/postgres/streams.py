@@ -84,6 +84,8 @@ class PostgresStream(Stream):
                 extra_data = {cursor_field: cursor_value} #It should not become part of metadata
             if upsert_keys:
                 extra_metadata["dat_record_id"] = '_'.join([str(record_dict[u_k]) for u_k in upsert_keys])
+            else:
+                extra_metadata["dat_record_id"] = "not_set"
             yield self.as_record_message(
                 configured_stream=configured_stream,
                 doc_chunk=record_str,

@@ -20,13 +20,19 @@ class TxtDatStream(DatDocumentStream):
         }
     )
 
-    usr_file_path: str = Field(
+    local_file_paths: List[str] = Field(
         ...,
         description='The path of the file to be read.',
-        title='File Path'
+        title='File Path',
+        json_schema_extra={
+            'ui-opts': {
+                'file_upload': True,
+                'allowed_file_types': ['.txt'],
+            }
+        }
     )
 
-    obj_file_path: Optional[str] = Field(None,
+    obj_file_paths: List[str] = Field(None,
         json_schema_extra={'ui-opts': {'hidden': True}}
     )
 
@@ -42,13 +48,19 @@ class CsvDatStream(DatDocumentStream):
         }
     )
 
-    usr_file_path: str = Field(
+    local_file_paths: List[str] = Field(
         ...,
         description='The path of the file to be read.',
-        title='File Path'
+        title='File Path',
+        json_schema_extra={
+            'ui-opts': {
+                'file_upload': True,
+                'allowed_file_types': ['.csv'],
+            }
+        }
     )
 
-    obj_file_path: Optional[str] = Field(None,
+    obj_file_paths: List[str] = Field(None,
         json_schema_extra={'ui-opts': {'hidden': True}}
     )
 
