@@ -94,7 +94,7 @@ class GoogleDriveStream(Stream):
                                   }
                 _doc_splitter = doc_splitter_factory.create(
                     loader_key=self._doc_loader.value,
-                    splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY.value,
+                    splitter_settings=configured_stream.model_dump()["advanced"]["splitter_settings"],
                     loader_config={'file_path': temp_file}
                 )
                 for doc_chunk in _doc_splitter.load_and_chunk():

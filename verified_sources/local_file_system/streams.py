@@ -61,7 +61,7 @@ class LocalFileSystemStream(Stream):
             client.fget_object(bucket_name, file_path, tmp_file)
             _doc_loader_and_splitter = doc_splitter_factory.create(
                 loader_key=self._doc_loader,
-                splitter_key=configured_stream.advanced.splitter_settings.splitter_settings,
+                splitter_settings=configured_stream.model_dump()["advanced"]["splitter_settings"],
                 loader_config=dict(
                     file_path=tmp_file
                 )

@@ -84,7 +84,7 @@ class GoogleCloudStorageStream(Stream):
             _doc_loader_and_splitter = doc_splitter_factory.create(
                 loader_key=map_doc_loader.get(
                     configured_stream.file_type.value),
-                splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY.value,
+                splitter_settings=configured_stream.model_dump()["advanced"]["splitter_settings"],
                 loader_config=dict(
                     file_path=file_path,
                 )

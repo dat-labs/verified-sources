@@ -70,7 +70,7 @@ class S3BaseStream(Stream):
 
                 _doc_loader_and_splitter = doc_splitter_factory.create(
                         loader_key=self._doc_loader,
-                        splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY.value,
+                        splitter_settings=configured_stream.model_dump()["advanced"]["splitter_settings"],
                         loader_config=dict(
                             file_path=file_path,
                         )

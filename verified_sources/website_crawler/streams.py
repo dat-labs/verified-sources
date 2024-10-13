@@ -90,10 +90,8 @@ class URLCrawler(Stream):
         }
         doc_splitter = doc_splitter_factory.create(
             loader_key=DocLoaderType.WHOLE_SITE_READER,
-            # splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY.value,
             loader_config=_loader_config,
-            splitter_key=configured_stream.advanced.splitter_settings.splitter_settings,
-            splitter_config=configured_stream.advanced.splitter_settings
+            splitter_settings=configured_stream.model_dump()["advanced"]["splitter_settings"],
             )
         for chunk in doc_splitter.load_and_chunk(**_load_kwargs):
             try:
