@@ -20,14 +20,11 @@ class PdfStream(DatDocumentStream):
             }
         }
     )
-    namespace: Optional[str] = Field(
-        None, description='namespace the data is associated with'
+    dir_uris: List[str] = Field(
+        ...,
+        description="Google Drive directory URIs",
+        title="Directory URIs"
     )
-    dir_uris: List[str]
-    advanced: Optional[Advanced] = Field(
-        None, description='Additional optional settings'
-    )
-
 
 class TxtStream(DatDocumentStream):
     name: Optional[str] = Field(
@@ -39,12 +36,10 @@ class TxtStream(DatDocumentStream):
             }
         }
     )
-    namespace: Optional[str] = Field(
-        None, description='namespace the data is associated with'
-    )
-    dir_uris: List[str]
-    advanced: Optional[Advanced] = Field(
-        None, description='Additional optional settings'
+    dir_uris: List[str] = Field(
+        ...,
+        description="Google Drive directory URIs",
+        title="Directory URIs"
     )
 
 
