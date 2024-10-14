@@ -23,7 +23,7 @@ class TxtDatStream(DatDocumentStream):
     local_file_paths: List[str] = Field(
         ...,
         description='The path of the file to be read.',
-        title='File Path',
+        title='Upload File',
         json_schema_extra={
             'ui-opts': {
                 'file_upload': True,
@@ -51,7 +51,7 @@ class CsvDatStream(DatDocumentStream):
     local_file_paths: List[str] = Field(
         ...,
         description='The path of the file to be read.',
-        title='File Path',
+        title='Upload File',
         json_schema_extra={
             'ui-opts': {
                 'file_upload': True,
