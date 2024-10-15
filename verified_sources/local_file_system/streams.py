@@ -59,12 +59,14 @@ class LocalFileSystemStream(Stream):
         with tempfile.TemporaryDirectory() as tmp_dir:
             tmp_file = os.path.join(tmp_dir, file_path)
             client.fget_object(bucket_name, file_path, tmp_file)
+            splitter_settings = configured_stream.splitter_settings
             _doc_loader_and_splitter = doc_splitter_factory.create(
                 loader_key=self._doc_loader,
-                splitter_settings=configured_stream.model_dump()["advanced"]["splitter_settings"],
+                splitter_key=splitter_settings.splitter_settings,
                 loader_config=dict(
                     file_path=tmp_file
-                )
+                ),
+                splitter_config=splitter_settings.get_splitter_config(splitter_settings.model_dump())
             )
 
             for _doc_chunk in _doc_loader_and_splitter.load_and_chunk():
