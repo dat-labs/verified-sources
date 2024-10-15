@@ -159,4 +159,3 @@ doc_splitter_factory.register_splitter(TextSplitterType.SPLIT_JSON_RECURSIVELY, 
 doc_splitter_factory.register_splitter(TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY, RecursiveCharacterTextSplitter)
 # doc_splitter_factory.register_splitter('semantic_chunking', SemanticChunker)
 doc_splitter_factory.register_splitter(TextSplitterType.SPLIT_BY_TOKENS, RecursiveCharacterTextSplitter)
-
