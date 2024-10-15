@@ -51,9 +51,11 @@ class CrawlerSitemap(Stream):
             'urls': urls,
         }
 
+        splitter_settings = configured_stream.advanced.splitter_settings
         doc_splitter = doc_splitter_factory.create(
             loader_key=DocLoaderType.BEAUTIFUL_SOUP,
-            splitter_settings=configured_stream.model_dump()["advanced"]["splitter_settings"],
+            splitter_key=splitter_settings.splitter_settings,
+            splitter_config=splitter_settings.get_splitter_config(splitter_settings.model_dump())
         )   
 
         for chunk in doc_splitter.load_and_chunk(**_load_kwargs):

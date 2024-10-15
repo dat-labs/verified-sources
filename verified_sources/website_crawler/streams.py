@@ -88,10 +88,13 @@ class URLCrawler(Stream):
         _load_kwargs = {
             'base_url': self._config.connection_specification.site_url
         }
+        
+        splitter_settings = configured_stream.advanced.splitter_settings
         doc_splitter = doc_splitter_factory.create(
             loader_key=DocLoaderType.WHOLE_SITE_READER,
+            splitter_key=splitter_settings.splitter_settings,
             loader_config=_loader_config,
-            splitter_settings=configured_stream.model_dump()["advanced"]["splitter_settings"],
+            splitter_config=splitter_settings.get_splitter_config(splitter_settings.model_dump())
             )
         for chunk in doc_splitter.load_and_chunk(**_load_kwargs):
             try:

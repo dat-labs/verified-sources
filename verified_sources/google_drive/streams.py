@@ -92,10 +92,13 @@ class GoogleDriveStream(Stream):
                                   'created_at': file['createdTime'],
                                   'dat_record_id': data_entity
                                   }
+                
+                splitter_settings = configured_stream.advanced.splitter_settings
                 _doc_splitter = doc_splitter_factory.create(
                     loader_key=self._doc_loader.value,
-                    splitter_settings=configured_stream.model_dump()["advanced"]["splitter_settings"],
-                    loader_config={'file_path': temp_file}
+                    splitter_key=splitter_settings.splitter_settings,
+                    loader_config={'file_path': temp_file},
+                    splitter_config=splitter_settings.get_splitter_config(splitter_settings.model_dump())
                 )
                 for doc_chunk in _doc_splitter.load_and_chunk():
                     try:
