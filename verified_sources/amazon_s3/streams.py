@@ -68,13 +68,14 @@ class S3BaseStream(Stream):
                 self.s3_client.download_file(
                     self._config.connection_specification.bucket_name, obj['Key'], file_path)
 
+                splitter_settings = configured_stream.advanced.splitter_settings
                 _doc_loader_and_splitter = doc_splitter_factory.create(
                         loader_key=self._doc_loader,
-                        splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY.value,
+                        splitter_key=splitter_settings.splitter_settings,
                         loader_config=dict(
                             file_path=file_path,
-                        )
-                        # splitter_config=configured_stream.advanced.splitter_settings.config
+                        ),
+                        splitter_config=splitter_settings.get_splitter_config(splitter_settings.model_dump())
                 )
                 for _doc_chunk in _doc_loader_and_splitter.load_and_chunk():
                     yield self.as_record_message(

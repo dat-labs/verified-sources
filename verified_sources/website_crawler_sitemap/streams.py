@@ -51,10 +51,12 @@ class CrawlerSitemap(Stream):
             'urls': urls,
         }
 
+        splitter_settings = configured_stream.advanced.splitter_settings
         doc_splitter = doc_splitter_factory.create(
             loader_key=DocLoaderType.BEAUTIFUL_SOUP,
-            splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY,
-        )
+            splitter_key=splitter_settings.splitter_settings,
+            splitter_config=splitter_settings.get_splitter_config(splitter_settings.model_dump())
+        )   
 
         for chunk in doc_splitter.load_and_chunk(**_load_kwargs):
             try:
@@ -111,7 +113,8 @@ class CrawlerSitemap(Stream):
         # Uncomment this to write the links to a file
         # with open('links.txt', 'w') as f:
         #     f.write('\n'.join(links))
-        # return list(links)
+
+        return list(links)
     
     def get_sitemap(self, url: str) -> Optional[str]:
         parsed_url = urlparse(str(url))
