@@ -1,7 +1,8 @@
 from verified_sources.google_drive.source import GoogleDrive
 from verified_sources.google_drive.specs import GoogleDriveSpecification, ConnectionSpecificationModel
 from verified_sources.google_drive.catalog import GoogleDriveCatalog, PdfStream, TxtStream
-from dat_core.pydantic_models import DatConnectionStatus
+from dat_core.pydantic_models import DatConnectionStatus, DatMessage, StreamState
+from dat_core.connectors.state_managers import LocalStateManager
 from datamodel_code_generator import InputFileType, generate, DataModelType
 from pydantic import BaseModel, Field
 from pathlib import Path
@@ -29,6 +30,43 @@ def test_discover(valid_connection_object):
         )
     )
     assert isinstance(_d, dict)
+
+def test_read(valid_connection_object, valid_catalog_object):
+    config = GoogleDriveSpecification(
+        name='GoogleDrive',
+        connection_specification=valid_connection_object,
+        module_name='google_drive'
+    )
+
+    google_drive = GoogleDrive()
+    records = google_drive.read(
+        config=config,
+        catalog=GoogleDriveCatalog(**valid_catalog_object),
+    )
+    assert DatMessage.model_validate(next(records))
+
+
+def test_read_incremental(valid_connection_object, valid_catalog_object, valid_stream_state_object):
+    config = GoogleDriveSpecification(
+        name='GoogleDrive',
+        connection_specification=valid_connection_object,
+        module_name='google_drive'
+    )
+    _combined_state = {
+        'my-pdf-stream': StreamState(**valid_stream_state_object)
+    }
+    google_drive = GoogleDrive()
+    records = google_drive.read(
+        config=config,
+        catalog=GoogleDriveCatalog(**valid_catalog_object),
+        state=_combined_state,
+    )
+    for record in records:
+        if record.type == 'STATE':
+            LocalStateManager().save_stream_state(
+                record.state.stream, record.state.stream_state)
+
+        assert DatMessage.model_validate(record)
 
 def test_specs_file():
     temp_specs = f'tests{os.path.sep}tmp_spec_model.py'
