@@ -75,7 +75,7 @@ class S3BaseStream(Stream):
                         loader_config=dict(
                             file_path=file_path,
                         ),
-                        splitter_config=splitter_settings.get_splitter_config
+                        splitter_config=splitter_settings.get_splitter_config(splitter_settings.model_dump())
                 )
                 for _doc_chunk in _doc_loader_and_splitter.load_and_chunk():
                     yield self.as_record_message(
