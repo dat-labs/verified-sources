@@ -81,14 +81,15 @@ class GoogleCloudStorageStream(Stream):
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
             blob.download_to_filename(file_path)
 
+            splitter_settings = configured_stream.advanced.splitter_settings
             _doc_loader_and_splitter = doc_splitter_factory.create(
                 loader_key=map_doc_loader.get(
                     configured_stream.file_type.value),
-                splitter_key=TextSplitterType.SPLIT_BY_CHARACTER_RECURSIVELY.value,
+                splitter_key = splitter_settings.splitter_settings,
                 loader_config=dict(
                     file_path=file_path,
-                )
-                # splitter_config=configured_stream.advanced.splitter_settings.config
+                ),
+                splitter_config=splitter_settings.get_splitter_config(splitter_settings.model_dump())
             )
             for _doc_chunk in _doc_loader_and_splitter.load_and_chunk():
                 yield self.as_record_message(
